@@ -1,0 +1,226 @@
+<template>
+  <el-container>
+    <el-header>
+      <el-row type="flex" class="header">
+        一共<span>{{ this.$route.query.num }}</span
+        >张/已做<span>{{ tableData.finishCount }}</span
+        >张
+      </el-row>
+    </el-header>
+    <el-main>
+      <el-main>
+        <el-row type="flex" justify="space-between">
+          <el-col :span="17">
+             <div class="demo-image__preview">
+              <el-image
+                style="width: 520px; height: 620px"
+                :src="tableData.sourceUrl"
+                :preview-src-list="[tableData.sourceUrl]"
+              >
+              </el-image>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div class="grid-content bg-purple">
+              <el-form :model="formMess">
+                <el-form-item label="广告主">
+                  <el-input
+                    v-model="tableData.sponsorText"
+                    :disabled="true"
+                  ></el-input>
+                  <el-input
+                    v-model="formMess.batchId"
+                    style="display: none"
+                  ></el-input>
+                  <el-input
+                    v-model="tableData.id"
+                    style="display: none"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="品牌">
+                  <el-input
+                    v-model="tableData.brandText"
+                    :disabled="true"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="产品字段">
+                  <el-input
+                    v-model="tableData.productFieldText"
+                    :disabled="true"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <div class="main-bottm">
+                    <el-button type="primary" size="mini" @click="onSave" round
+                      >通过</el-button
+                    >
+                    <el-button
+                      type="danger"
+                      size="mini"
+                      @click="onUnconfirm"
+                      round
+                      >不通过</el-button
+                    >
+                  </div>
+                </el-form-item>
+              </el-form>
+            </div>
+          </el-col>
+        </el-row>
+      </el-main>
+    </el-main>
+  </el-container>
+</template>
+
+<script>
+import { mapGetters } from "vuex";
+import pagination from "@/components/Pagination";
+import { labelLoadData } from "../../api/sorter";
+import { labelSubmitOperate } from "../../api/sorter";
+
+import {
+  fetchMsdsList,
+  fetchChemicalsTypes,
+  addMsdsBaseInfo,
+  updateMsdsBaseInfo,
+  addMsdsEmergencyDisposal,
+  updateMsdsEmergencyDisposal,
+  addFirstAidMeasures,
+  updateFirstAidMeasures,
+  importExcel,
+  delMsds,
+} from "@/api/msds";
+
+export default {
+  name: "SorterMainForm",
+  components: { pagination },
+  data() {
+    return {
+      formMess: {
+        arId: "",
+        sponsorName: "",
+        bandName: "",
+        fieldName: "",
+        notTell: "",
+        searchWords: "",
+        batchId: "",
+        isPass: "",
+      },
+      tableData: [],
+      SponsorData: [],
+      list: [],
+      strid: "",
+      dialogTableVisible: false,
+      dialogFormVisible: false,
+      formLabelWidth: "120px",
+
+      options: [],
+      value: [],
+      list: [],
+      loading: false,
+      states: [],
+    };
+  },
+  created() {
+    this.formMess.batchId = this.$route.query.batchId;
+    this.getdata();
+  },
+
+  methods: {
+    inited(viewer) {
+      this.$viewer = viewer;
+    },
+    //加载数据
+    getdata() {
+      let that = this;
+      const prames = {
+        batchId: this.$route.query.batchId,
+      };
+      labelLoadData(this.formMess).then((response) => {
+        if (response.data.code == 1000) {
+          this.tableData = response.data.data;
+          this.strid = this.tableData.id;
+        } else {
+          this.menu = response.data.data;
+        }
+      });
+    },
+    //不通过
+    onUnconfirm() {
+      let that = this;
+      this.formMess.arId = this.strid;
+      this.formMess.isPass = 1;
+      labelSubmitOperate(that.formMess).then((response) => {
+        if (response.data.code == 1000) {
+          this.getdata();
+        } else {
+          this.$message.error("没有下一条数据了");
+        }
+      });
+    },
+    //通过
+    onSave: function () {
+      let that = this;
+      this.formMess.arId = this.strid;
+      this.formMess.isPass = 2;
+      console.log(this.formMess.arId);
+      labelSubmitOperate(that.formMess).then((response) => {
+        if (response.data.code == 1000) {
+          this.getdata();
+        } else {
+          this.$message.error("没有下一条数据了");
+        }
+      });
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.el-header,
+.el-footer {
+  background-color: #b3c0d1;
+  color: #333;
+  text-align: center;
+  line-height: 60px;
+}
+
+.el-aside {
+  background-color: #d3dce6;
+  color: #333;
+  text-align: center;
+  line-height: 200px;
+}
+
+.el-main {
+  background-color: #e9eef3;
+  color: #333;
+  text-align: center;
+  line-height: 160px;
+}
+
+body > .el-container {
+  margin-bottom: 40px;
+}
+
+.el-container:nth-child(5) .el-aside,
+.el-container:nth-child(6) .el-aside {
+  line-height: 260px;
+}
+
+.el-container:nth-child(7) .el-aside {
+  line-height: 320px;
+}
+.grid-content {
+  margin-right: 20px;
+}
+.header > span {
+  color: white;
+}
+.el-form-item:nth-child(1n+2){
+  margin-top: 70px;
+}
+.el-button > span{
+  color:white;
+}
+</style>

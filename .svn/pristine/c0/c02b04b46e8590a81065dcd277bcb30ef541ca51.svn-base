@@ -1,0 +1,141 @@
+<template>
+  <el-container>
+    <el-header>
+      <el-row type="flex" class="header">
+        一共<span>{{ this.$route.query.num }}</span
+        >张/已做<span>{{ tableData && tableData.finishCount }}</span
+        >张
+      </el-row>
+    </el-header>
+    <el-main>
+      <el-main>
+        <el-row type="flex" justify="space-between">
+          <el-col :span="17">
+            <div class="demo-image__preview">
+              <el-image
+                style="width: 520px; height: 620px"
+                :src="tableData && tableData.sourceUrl"
+                :preview-src-list="[tableData && tableData.sourceUrl]"
+              >
+              </el-image>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div class="grid-content bg-purple">
+              <el-form>
+                <el-form-item label="广告主">
+                  <el-input
+                    v-model="tableData.sponsorText"
+                    :disabled="true"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="品牌">
+                  <el-input
+                    v-model="tableData.brandText"
+                    :disabled="true"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="产品字段">
+                  <el-input
+                    v-model="tableData.productFieldText"
+                    :disabled="true"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <div class="main-bottm">
+                    <el-button type="primary" size="mini" @click="nextData" round >下一个</el-button
+                    >
+                  </div>
+                </el-form-item>
+              </el-form>
+            </div>
+          </el-col>
+        </el-row>
+      </el-main>
+    </el-main>
+  </el-container>
+</template>
+
+<script>
+import "viewerjs/dist/viewer.css";
+import axios from "axios";
+import { mapGetters } from "vuex";
+import pagination from "@/components/Pagination";
+import { getFailedDataList } from "../../api/engineer";
+
+export default {
+  name: "EngineerFailedData",
+  components: { pagination },
+  data() {
+    return {
+      tableData: {
+        sponsorText:'',
+        brandText:'',
+        productFieldText:'',
+        sourceUrl:''
+      },
+      current_page:1,
+    };
+  },
+  created() {
+    this.nextData();
+  },
+  methods: {
+    //加载数据
+    nextData() {
+      getFailedDataList({current_page:this.current_page}).then((response) => {
+        if (response.data.code == 1000) {
+          this.tableData = response.data.data.data[0];
+          this.current_page += 1
+          console.log(this.tableData);
+        } else {
+          this.$message.error(response.data.message);
+        }
+      });
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.el-header,
+.el-footer {
+  background-color: #b3c0d1;
+  color: #333;
+  text-align: center;
+  line-height: 60px;
+}
+
+.el-aside {
+  background-color: #d3dce6;
+  color: #333;
+  text-align: center;
+  line-height: 200px;
+}
+
+.el-main {
+  background-color: #e9eef3;
+  color: #333;
+  text-align: center;
+  line-height: 160px;
+}
+
+body > .el-container {
+  margin-bottom: 40px;
+}
+
+.el-container:nth-child(5) .el-aside,
+.el-container:nth-child(6) .el-aside {
+  line-height: 260px;
+}
+
+.el-container:nth-child(7) .el-aside {
+  line-height: 320px;
+}
+.grid-content {
+  margin-right: 20px;
+}
+.header > span {
+  color: white;
+}
+</style>
