@@ -17,15 +17,6 @@ export function batchExportData(data) {
   })
 }
 
-// 管理员获取选择批次号
-export function getSelectBatchNo(data) {
-  return request({
-    url: '/AdministratorOperation/getSelectBatchNo',
-    method: 'post',
-    data
-  })
-}
-
 export function getInfo(token) {
   return request({
     url: '/vue-admin-template/user/info',

@@ -7,7 +7,8 @@ import router from '../router/index'
 // 正式环境
 // let httpUrl = 'http://192.168.0.254/api';
 // 测试环境
-let httpUrl = 'http://192.168.0.253:8081';
+let httpUrl = 'http://192.168.0.253';
+
 axios.defaults.domainName = httpUrl;
 axios.defaults.baseURL = httpUrl;
 

@@ -32,7 +32,7 @@
                     class="inline-input"
                     v-model="formMess.sponsorName"
                     :fetch-suggestions="querySearchSponsorNameSuggestions"
-                    placeholder="请输入"
+                    placeholder="请输入广告主"
                     :trigger-on-focus="true"
                     @select="handleSelectSponsorName"
                     ref="sponsorNameRef"

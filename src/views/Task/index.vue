@@ -7,7 +7,20 @@
           <el-radio v-model="ruleForm.arType" label="1">视频</el-radio>
         </el-form-item>
         <el-form-item label="描述">
-          <el-input v-model="ruleForm.description"></el-input>
+          <el-input  type="textarea" placeholder="请输入内容" v-model="ruleForm.description"></el-input>
+        </el-form-item>
+        <!-- 获取批次号 -->
+         <el-form-item label="批次号">
+          <el-autocomplete
+            class="inline-input"
+            v-model="ruleForm.bCode"
+            :fetch-suggestions="querygetSelectBatchNoSuggestions"
+            placeholder="请输入内容"
+            :trigger-on-focus="true"
+            @select="handleSelectSponsorName"
+            ref="sponsorNameRef"
+            >
+          </el-autocomplete>
         </el-form-item>
         <el-form-item label="文件上传">
           <el-upload
@@ -41,7 +54,7 @@
 </template>
 
 <script>
-//import axios from 'axios';
+import axios from 'axios';
 import { mapGetters } from "vuex";
 import pagination from "@/components/Pagination";
 import { getUrl } from "../../api/sorter";
@@ -57,6 +70,8 @@ import {
   importExcel,
   delMsds,
 } from "@/api/msds";
+// 批次号
+import { getSelectBatchNo } from "@/api/admintask" ;
 
 export default {
   name: "Task",
@@ -64,11 +79,14 @@ export default {
   data() {
     return {
       //radio: "0",
+      fileList: [],
       token: "",
       ruleForm: {
         arType: "0",
+        // 描述
         description: "",
-        batchId: "",
+        // 批次号编码
+        bCode: "",
       },
       bool: true,
       postMethod: "/AdministratorOperation/batchImportData",
@@ -91,6 +109,27 @@ export default {
     }
   },
   methods: {
+    getnull() {
+      this.ruleForm.bCode = null;
+    },
+    //加载数据
+    getdata() {
+      this.getnull();
+      const prames = {
+        batchId: this.batchId
+      };
+      labelLoadData(prames).then((response) => {
+        if (response.data.code == 1000) {
+          this.tableData = response.data.data;
+          this.ruleForm.arId = this.tableData.id;
+          console.log(this.tableData)
+        } else {
+          // this.menu = response.data.data;
+          this.$message.error(response.data.message);
+        }
+        this.$refs.sponsorNameRef.$refs.input.focus();
+      });
+    },
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
@@ -107,19 +146,83 @@ export default {
       }
       this.$message.error(res.message)
     },
-    handleExceed(files, fileList) {},
-    async handleChange() {
-
+    handleExceed(files, fileList) {
+      console.log(files,fileList);
+    }, 
+    async handleChange() {},
+    // 批次号提醒
+    handleSelectSponsorName() {},
+    querygetSelectBatchNoSuggestions(queryString, cb) {
+      // getSelectBatchNo({ searchWords: queryString }).then((res) => {
+      //   // console.log(getSelectBatchNo)
+      //   if (res.data.code == 1000) {
+      //     let retData = res.data.data.data;
+      //     let restaurants = [];
+      //     retData.forEach((element) => {
+      //       restaurants.push({ value: element.bCode });
+      //     });
+      //     let results = queryString
+      //       ? restaurants.filter(this.createFilter(queryString))
+      //       : restaurants;
+      //     cb(results);
+      //   }
+      // });
+      
+      new Promise(function(resolve,reject) {
+        resolve({
+            "code": 1000,
+            "message": "获取成功",
+            "data": {
+                "total": 3,
+                "per_page": 10,
+                "current_page": 1,
+                "last_page": 1,
+                "data": [
+                    {
+                        "id": 1,
+                        "bCode": "20191214-8"
+                    },
+                    {
+                        "id": 2,
+                        "bCode": "20201214-9"
+                    },
+                    {
+                        "id": 3,
+                        "bCode": "20201214-10"
+                    }
+                ]
+            }
+        });
+      }).then((res) => {
+        console.log(res)
+        if (res.code == 1000) {
+          let retData = res.data.data;
+          let restaurants = [];
+          retData.forEach((element) => {
+            restaurants.push({ value: element.bCode });
+          });
+          let results = queryString
+            ? restaurants.filter(this.createFilter(queryString))
+            : restaurants;
+          cb(results);
+        }
+      });
     },
-
+    createFilter(queryString) {
+      return (restaurant) => {
+        return (
+          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
+          0
+        );
+      };
+    },
     onSubmit() {
       this.$refs.upload.submit();
       return false;
     },
-  },
-};
+  }
+}
 </script>
-
 <style lang="scss" scoped>
 .msds-container {
   .add-export-btns {
