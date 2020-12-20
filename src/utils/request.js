@@ -8,6 +8,7 @@ import router from '../router/index'
 // let httpUrl = 'http://192.168.0.254/api';
 // 测试环境
 let httpUrl = 'http://192.168.0.253:8081';
+// let httpUrl = 'http://xiaohua.test.utools.club';
 axios.defaults.domainName = httpUrl;
 axios.defaults.baseURL = httpUrl;
 
