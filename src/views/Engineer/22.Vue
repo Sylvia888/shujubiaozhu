@@ -1,11 +1,121 @@
 <template>
   <el-container>
-     <el-cascader-panel 
-     :options="options"
-     medium="medium"
-     :collapse-tags="false"
-     :props="prop"
-     ></el-cascader-panel>
+    <!-- 头部区域 -->
+    <el-header>
+      <el-row type="flex" class="header">
+        一共<span>{{ this.$route.query.num }}</span
+        >张/已做<span>{{ tableData && tableData.finishCount }}</span
+        >张
+      </el-row>
+    </el-header>
+    <!-- 中心主体区域 -->
+    <el-main>
+        <el-row type="flex" justify="space-between">
+          <!-- 图片展示 -->
+          <el-col :span="10">
+            <div class="el-upload">
+              <el-image
+                class="avatar"
+                :src="tableData && tableData.sourceUrl"
+                :preview-src-list="[tableData && tableData.sourceUrl]"
+              >
+              </el-image>
+            </div>
+          </el-col>
+          <!--文本标注-->
+          <el-col :span="17">
+            <!-- <div class="grid-content bg-purple">
+              <el-form :model="formMess">
+                <el-form-item label="广告主">
+                  <el-autocomplete
+                    class="inline-input"
+                    v-model="formMess.sponsorName"
+                    :fetch-suggestions="querySearchSponsorNameSuggestions"
+                    placeholder="请输入"
+                    :trigger-on-focus="true"
+                    @select="handleSelectSponsorName"
+                    ref="sponsorNameRef"
+                  ></el-autocomplete>
+                </el-form-item>
+                <el-form-item label="品牌">
+                  <el-autocomplete
+                    class="inline-input"
+                    v-model="formMess.bandName"
+                    :fetch-suggestions="querySearchBandNameSuggestions"
+                    placeholder="请输入品牌"
+                    :trigger-on-focus="true"
+                    @select="handleSelectBandName"
+                  ></el-autocomplete>
+                </el-form-item>
+                <el-form-item label="产品字段">
+                  <el-autocomplete
+                    class="inline-input"
+                    v-model="formMess.fieldName"
+                    :fetch-suggestions="querySearchFieldNameSuggestions"
+                    placeholder="请输入产品字段"
+                    :trigger-on-focus="true"
+                    @select="handleSelectFieldName"
+                  ></el-autocomplete>
+                </el-form-item>
+                <el-form-item class="">
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @keyup.enter="onSubmit"
+                      @click="onSubmit"
+                      round
+                      >提交</el-button
+                    >
+                    <el-button
+                      type="danger"
+                      size="mini"
+                      @click="unconfirmSubmit"
+                      round
+                      >待确认</el-button
+                    >
+                    <el-button
+                      type="danger"
+                      size="mini"
+                      @click="noAdvSubmit"
+                      round
+                      >无广告主</el-button
+                    >
+                </el-form-item>
+              </el-form>
+            </div> -->
+          <div class="rightbox">
+            <div class="screen">
+                <el-input type="search" v-model="search" style="width:70%" placeholder="请输入关键字"></el-input>
+                <el-button type="primary">搜索</el-button>
+            </div>
+               <!-- 表格 -->
+        <div class="table">
+            <el-table :data="tableData" border style="width: 100%">
+            <!-- 地址 -->
+                <el-table-column label="广告主">
+                    <template slot-scope="scope">    
+                        <span class="col-cont" v-html="showDate(scope.row.date)" ></span>
+                    </template>
+                </el-table-column>
+                <!-- 用户名 -->
+                <el-table-column label="品牌">
+                    <template slot-scope="scope">
+                        <span class="col-cont" v-html="showDate(scope.row.name)" ></span>
+                    </template>
+                </el-table-column>
+                <!-- 地址 -->
+                <el-table-column label="产品">
+                    <template slot-scope="scope">
+                        <span class="col-cont" v-html="showDate(scope.row.address)" ></span>
+                    </template>
+                </el-table-column>    
+            </el-table>
+        </div>
+    </div>
+          </div>
+          </el-col>
+        </el-row>
+    </el-main>
   </el-container>
 </template>
 
@@ -39,221 +149,19 @@ import {
 export default {
   name: "EngineerMainForm",
   components: { pagination },
-  // data() {
-  //   return {
-  //     formMess: {
-  //       arId: 0,
-  //       sponsorName: null,
-  //       bandName: null,
-  //       fieldName: null,
-  //       status: 2,
-  //     },
-  //     batchId:0,
-  //     tableData:null
-  //   };
-  // },
- data() {
-      return {
-        prop:{
-          expandTrigger:"hover"
-        },
-        options: [{
-          value: 'zhinan',
-          label: '指南',
-          children: [{
-            value: 'shejiyuanze',
-            label: '设计原则',
-            children: [{
-              value: 'yizhi',
-              label: '一致'
-            }, {
-              value: 'fankui',
-              label: '反馈'
-            }, {
-              value: 'xiaolv',
-              label: '效率'
-            }, {
-              value: 'kekong',
-              label: '可控'
-            }]
-          }, {
-            value: 'daohang',
-            label: '导航',
-            children: [{
-              value: 'cexiangdaohang',
-              label: '侧向导航'
-            }, {
-              value: 'dingbudaohang',
-              label: '顶部导航'
-            }]
-          }]
-        }, {
-          value: 'zujian',
-          label: '组件',
-          children: [{
-            value: 'basic',
-            label: 'Basic',
-            children: [{
-              value: 'layout',
-              label: 'Layout 布局'
-            }, {
-              value: 'color',
-              label: 'Color 色彩'
-            }, {
-              value: 'typography',
-              label: 'Typography 字体'
-            }, {
-              value: 'icon',
-              label: 'Icon 图标'
-            }, {
-              value: 'button',
-              label: 'Button 按钮'
-            }]
-          }, {
-            value: 'form',
-            label: 'Form',
-            children: [{
-              value: 'radio',
-              label: 'Radio 单选框'
-            }, {
-              value: 'checkbox',
-              label: 'Checkbox 多选框'
-            }, {
-              value: 'input',
-              label: 'Input 输入框'
-            }, {
-              value: 'input-number',
-              label: 'InputNumber 计数器'
-            }, {
-              value: 'select',
-              label: 'Select 选择器'
-            }, {
-              value: 'cascader',
-              label: 'Cascader 级联选择器'
-            }, {
-              value: 'switch',
-              label: 'Switch 开关'
-            }, {
-              value: 'slider',
-              label: 'Slider 滑块'
-            }, {
-              value: 'time-picker',
-              label: 'TimePicker 时间选择器'
-            }, {
-              value: 'date-picker',
-              label: 'DatePicker 日期选择器'
-            }, {
-              value: 'datetime-picker',
-              label: 'DateTimePicker 日期时间选择器'
-            }, {
-              value: 'upload',
-              label: 'Upload 上传'
-            }, {
-              value: 'rate',
-              label: 'Rate 评分'
-            }, {
-              value: 'form',
-              label: 'Form 表单'
-            }]
-          }, {
-            value: 'data',
-            label: 'Data',
-            children: [{
-              value: 'table',
-              label: 'Table 表格'
-            }, {
-              value: 'tag',
-              label: 'Tag 标签'
-            }, {
-              value: 'progress',
-              label: 'Progress 进度条'
-            }, {
-              value: 'tree',
-              label: 'Tree 树形控件'
-            }, {
-              value: 'pagination',
-              label: 'Pagination 分页'
-            }, {
-              value: 'badge',
-              label: 'Badge 标记'
-            }]
-          }, {
-            value: 'notice',
-            label: 'Notice',
-            children: [{
-              value: 'alert',
-              label: 'Alert 警告'
-            }, {
-              value: 'loading',
-              label: 'Loading 加载'
-            }, {
-              value: 'message',
-              label: 'Message 消息提示'
-            }, {
-              value: 'message-box',
-              label: 'MessageBox 弹框'
-            }, {
-              value: 'notification',
-              label: 'Notification 通知'
-            }]
-          }, {
-            value: 'navigation',
-            label: 'Navigation',
-            children: [{
-              value: 'menu',
-              label: 'NavMenu 导航菜单'
-            }, {
-              value: 'tabs',
-              label: 'Tabs 标签页'
-            }, {
-              value: 'breadcrumb',
-              label: 'Breadcrumb 面包屑'
-            }, {
-              value: 'dropdown',
-              label: 'Dropdown 下拉菜单'
-            }, {
-              value: 'steps',
-              label: 'Steps 步骤条'
-            }]
-          }, {
-            value: 'others',
-            label: 'Others',
-            children: [{
-              value: 'dialog',
-              label: 'Dialog 对话框'
-            }, {
-              value: 'tooltip',
-              label: 'Tooltip 文字提示'
-            }, {
-              value: 'popover',
-              label: 'Popover 弹出框'
-            }, {
-              value: 'card',
-              label: 'Card 卡片'
-            }, {
-              value: 'carousel',
-              label: 'Carousel 走马灯'
-            }, {
-              value: 'collapse',
-              label: 'Collapse 折叠面板'
-            }]
-          }]
-        }, {
-          value: 'ziyuan',
-          label: '资源',
-          children: [{
-            value: 'axure',
-            label: 'Axure Components'
-          }, {
-            value: 'sketch',
-            label: 'Sketch Templates'
-          }, {
-            value: 'jiaohu',
-            label: '组件交互文档'
-          }]
-        }]
-      };
-    },
+  data() {
+    return {
+      formMess: {
+        arId: 0,
+        sponsorName: null,
+        bandName: null,
+        fieldName: null,
+        status: 2,
+      },
+      batchId:0,
+      tableData:null
+    };
+  },
   created() {
     this.batchId = this.$route.query.batchId;
     this.getdata();

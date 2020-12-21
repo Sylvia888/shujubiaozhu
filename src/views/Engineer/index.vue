@@ -1,20 +1,23 @@
 <template>
   <div class="msds-container view-container">
-    <el-table
+  <el-table
       :data="tableData"
       :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
       border
       style="width: 100%; text-align: center"
     >
-      <el-table-column fixed prop="id" label="id" width="150">
-      </el-table-column>
-      <el-table-column fixed prop="bCode" label="批次编号" width="150">
-      </el-table-column>
-      <el-table-column fixed prop="batchTotalCount" label="批次总数量" width="120">
-      </el-table-column>
-      <el-table-column fixed prop="finishCount" label="完成数量" width="150">
-      </el-table-column>
-      <el-table-column label="操作" width="300">
+      <el-table-column fixed prop="id" label="id" width="60"></el-table-column>
+      <el-table-column fixed prop="bCode" label="批次编号" width="150"></el-table-column>
+      <el-table-column fixed prop="batchTotalCount" label="批次总数量" width="120"></el-table-column>
+      <el-table-column fixed prop="finishCount" label="完成数量" width="90"></el-table-column>
+      <el-table-column fixed prop="awaitCount" label="待完成数量" width="100"></el-table-column>
+      <el-table-column fixed prop="reviewCount" label="复核数量" width="90"></el-table-column>
+      <el-table-column fixed prop="nopassCount" label="未通过数量" width="100"></el-table-column>
+      <el-table-column fixed prop="qualified" label="合格率(%)" width="90"></el-table-column>
+      <el-table-column fixed prop="noQualified" label="不良率(%)" width="90"></el-table-column>
+      <el-table-column fixed prop="comment" label="备注" width="100"></el-table-column>
+      <!-- 操作选项 -->
+      <el-table-column label="操作" width="300" fixed="left">
         <template slot-scope="scope">
           <el-button @click="handleClick(scope.row)" type="text" size="small"
             >数据标注</el-button
@@ -31,9 +34,17 @@
             @click="handleReCheckData(scope.row)"
             >数据复核</el-button
           >
+          <!-- 还没做 -->
+          <el-button
+            type="text"
+            size="small"
+            @click="Personnel(scope.row)"
+            >人员详情</el-button
+          >
         </template>
       </el-table-column>
-    </el-table>
+  </el-table>
+    <!-- 分页 -->
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -124,7 +135,6 @@ export default {
       getBatchNoList(this.params).then((response) => {
         if (response.data.code == 1000) {
           this.tableData = response.data.data.data;
-
           this.params.totle = response.data.data.total; //分页
         } else {
           this.menu = response.data.data;
