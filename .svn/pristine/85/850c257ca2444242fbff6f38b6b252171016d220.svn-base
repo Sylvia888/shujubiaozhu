@@ -1,0 +1,469 @@
+<template>
+  <el-container>
+    <!-- 头部区域 -->
+    <el-header>
+      <el-row type="flex" class="header">
+         一共<span>{{ this.$route.query.num }}</span
+        >张/已做<span>{{ tableData && tableData.finishCount }}</span
+        >张
+      </el-row>
+    </el-header>
+    <!-- 中心主体区域 -->
+    <el-main>
+      <el-row>
+        <el-col :span="16">
+           <div class="el-upload">
+               <el-image
+                style="width: 520px; height: 620px"
+                :src="tableData && tableData.sourceUrl"
+                :preview-src-list="[tableData && tableData.sourceUrl]"
+              >
+              </el-image>
+            </div>
+        </el-col>
+        <el-col :span="8">
+          <el-row>
+            <el-input v-model="search" placeholder="请输入品牌" @input="searchOnChange"></el-input>
+          </el-row>
+          <el-row>
+          <el-form :model="formMess">
+             <el-row class="form-label-title">
+                <el-col :span="8">广告主
+                </el-col>
+                 <el-col :span="8">品牌
+                </el-col>
+                 <el-col :span="8">产品字段
+                </el-col>
+             </el-row>
+             <el-row type="flex" class="row-bg" justify="space-around">
+               <el-form-item >
+               <el-col :span="8" >
+               <select multiple @change="sponsorOnChageValue">
+                   <option v-for="(item,i) in selectItems" :value="i" >
+                        {{item.adName}}
+                  </option>
+                  </select>
+                </el-col>
+                 <el-col :span="8">
+                 <select multiple v-if="selectBrandItems" @change="brandOnChageValue">
+                   <option v-for="(item,i) in selectBrandItems" :value="i">
+                        {{item.bName}}
+                  </option>
+                  </select>
+                </el-col>
+                 <el-col :span="8">
+                 <select multiple v-if="productFieldItems" @change="productFieldOnChageValue">
+                   <option v-for="(item,i) in productFieldItems" :value="i">
+                        {{item.keyword}}
+                  </option>
+                  </select>
+                </el-col>
+               </el-form-item>
+             </el-row>
+              <el-row>
+                <el-form-item class="">
+                     <el-button
+                      type="primary"
+                      size="mini"
+                      @keyup.enter="onSubmit"
+                      @click="onSubmit"
+                      round
+                      >提交</el-button
+                    >
+                    <el-button
+                      type="danger"
+                      size="mini"
+                      @click="noAdvSubmit"
+                      round
+                      >无广告主</el-button
+                    >
+                    <el-button
+                      type="danger"
+                      size="mini"
+                      @click="cannottellSubmit"
+                      round
+                      >无法判断</el-button
+                    >
+                </el-form-item>
+              </el-row>
+            </el-form>
+          </el-row>
+          <el-row type="flex" class="row-bg" justify="space-around">
+            <el-autocomplete
+                    class="inline-input"
+                    v-model="formMess.sponsorName"
+                    :fetch-suggestions="querySearchSponsorNameSuggestions"
+                    placeholder="请输入广告主"
+                    :trigger-on-focus="true"
+                    @select="handleSelectSponsorName"
+                    ref="sponsorNameRef"
+                  ></el-autocomplete>
+                   <el-autocomplete
+                    class="inline-input"
+                    v-model="formMess.bandName"
+                    :fetch-suggestions="querySearchBandNameSuggestions"
+                    placeholder="请输入品牌"
+                    :trigger-on-focus="true"
+                    @select="handleSelectBandName"
+                  ></el-autocomplete>
+                   <el-autocomplete
+                    class="inline-input"
+                    v-model="formMess.fieldName"
+                    :fetch-suggestions="querySearchFieldNameSuggestions"
+                    placeholder="请输入产品字段"
+                    :trigger-on-focus="true"
+                    @select="handleSelectFieldName"
+                  ></el-autocomplete>
+          </el-row>
+        </el-col>
+      </el-row>
+    </el-main>
+  </el-container>
+</template>
+
+<script>
+import "viewerjs/dist/viewer.css";
+import axios from "axios";
+import { mapGetters } from "vuex";
+import pagination from "@/components/Pagination";
+import ImageViewer from '@/components/Wcimage/ImageViewer'
+import {
+  labelLoadData,
+  searchSponsorName,
+  searchBandsName,
+  searchProductFields,
+  sponsorLinkageSearch,
+  reCheckSubmitOperate,
+  getReCheckDataList
+} from "../../api/engineer";
+
+import {
+  fetchMsdsList,
+  fetchChemicalsTypes,
+  addMsdsBaseInfo,
+  updateMsdsBaseInfo,
+  addMsdsEmergencyDisposal,
+  updateMsdsEmergencyDisposal,
+  addFirstAidMeasures,
+  updateFirstAidMeasures,
+  importExcel,
+  delMsds,
+} from "@/api/msds";
+
+export default {
+  name: "EngineerMainForm",
+  components: { pagination },
+  data() {
+    return {
+      formMess: {
+        arId: 0,
+        sponsorName: null,
+        bandName: null,
+        fieldName: null,
+        status: 2,
+      },
+      batchId:0,
+      selectItems:[],
+      selectBrandItems:[],
+      productFieldItems:[],
+      search:null,
+      tableData:null,
+      selectSponsorIdx:0,
+      selectBrandIdx:0,
+    };
+  },
+  created() {
+    this.batchId = this.$route.query.batchId;
+    this.getdata();
+    this.SearchEngineer();
+  },
+  mounted() {
+    this.$refs.sponsorNameRef.$refs.input.focus();
+    this.enterKeyup();
+  },
+  destroyed() {
+    this.enterKeyupDestroyed();
+  },
+  methods: {
+    searchOnChange(e){
+       this.SearchEngineer()
+       
+    },
+    sponsorOnChageValue(e){
+         let idx = e.target.value
+        this.selectSponsorIdx = idx
+        this.formMess.sponsorName = this.selectItems[idx].adName
+        this.selectBrandItems = this.selectItems[idx].brandItems
+        this.productFieldItems = this.selectItems[idx].productFieldItems
+        this.formMess.bandName = null
+        this.formMess.fieldName = null
+        this.selectSponsorIdx = 0
+        this.selectBrandIdx = 0
+    },
+    brandOnChageValue(e){
+        let idx = e.target.value
+        this.formMess.bandName = this.selectBrandItems[idx].bName
+        this.formMess.sponsorName = this.selectItems[this.selectSponsorIdx].adName
+        this.selectBrandIdx = idx
+    },
+    productFieldOnChageValue(e){
+        let idx = e.target.value
+        this.formMess.fieldName = this.productFieldItems[idx].keyword
+        this.formMess.sponsorName = this.selectItems[this.selectSponsorIdx].adName
+        this.formMess.bandName = this.selectBrandItems[this.selectBrandIdx].bName
+    },
+    // 点击搜索
+    async SearchEngineer() {
+       const {data} = await sponsorLinkageSearch({searchWords:this.search})
+       if(data.code === 1000){
+         this.selectItems = data.data;
+         this.selectBrandItems = this.selectItems[0].brandItems
+         this.productFieldItems = this.selectItems[0].productFieldItems
+       }else{
+         this.selectItems = null
+         this.selectBrandItems = null
+         this.productFieldItems = null
+       }
+       console.log(this.selectItems)
+    },
+    getnull() {
+      this.formMess.sponsorName = null;
+      this.formMess.bandName = null;
+      this.formMess.fieldName = null;
+      this.formMess.status = 2;
+      this.search = null;
+      this.selectSponsorIdx = 0
+      this.selectBrandIdx = 0
+    },
+    //加载数据
+    getdata() {
+      this.getnull();
+      const prames = {
+        batchId: this.batchId
+      };
+      
+      getReCheckDataList(prames).then((response) => {
+        console.log(response)
+        if (response.data.code == 1000) {
+           this.tableData = response.data.data;
+          this.formMess.arId = this.tableData.id;
+          this.formMess.sponsorName = this.tableData.sponsorText
+          this.formMess.bandName = this.tableData.brandText
+          this.formMess.fieldName = this.tableData.productFieldText
+          console.log(this.tableData)
+        } else {
+          // this.menu = response.data.data;
+          this.$message.error(response.data.message);
+        }
+        this.$refs.sponsorNameRef.$refs.input.focus();
+      });
+    },
+    //提交
+    onSubmit: function () {
+      this.formMess.status = 2
+      reCheckSubmitOperate(this.formMess).then((response) => {
+        if (response.data.code == 1000) {
+          this.getdata();
+          this.$message.success('提交成功')
+        } else {
+          this.$message.error(response.data.message);
+        }
+      });
+    },
+    // 无广告主提交
+    noAdvSubmit(){
+      this.formMess.reStatus = 3
+      reCheckSubmitOperate(this.formMess).then((response) => {
+        if (response.data.code == 1000) {
+          this.getdata();
+          this.$message.success('提交成功')
+        } else {
+          this.$message.error(response.data.message);
+        }
+      });
+    },
+    // 无法判断
+    cannottellSubmit() {
+      this.formMess.reStatus = 4
+      reCheckSubmitOperate(this.formMess).then((response) => {
+        if (response.data.code == 1000) {
+          this.getdata();
+          this.$message.success('提交成功')
+        } else {
+          this.$message.error(response.data.message);
+        }
+      });
+    },
+    // 搜索广告主
+    handleSelectSponsorName() {},
+    querySearchSponsorNameSuggestions(queryString, cb) {
+      searchSponsorName({ searchWords: queryString }).then((res) => {
+        if (res.data.code == 1000) {
+          let retData = res.data.data.data;
+          let restaurants = [];
+          retData.forEach((element) => {
+            restaurants.push({ value: element.adName });
+          });
+
+          let results = queryString
+            ? restaurants.filter(this.createFilter(queryString))
+            : restaurants;
+          cb(results);
+        }
+      });
+    },
+    createFilter(queryString) {
+      return (restaurant) => {
+        return (
+          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
+          0
+        );
+      };
+    },
+    // 搜索品牌
+    handleSelectBandName() {},
+    querySearchBandNameSuggestions(queryString, cb) {
+      searchBandsName({ searchWords: queryString }).then((res) => {
+        if (res.data.code == 1000) {
+          let retData = res.data.data.data;
+          let restaurants = [];
+          retData.forEach((element) => {
+            restaurants.push({ value: element.bName });
+          });
+
+          let results = queryString
+            ? restaurants.filter(this.createFilter(queryString))
+            : restaurants;
+          cb(results);
+        }
+      });
+    },
+    // 搜索产品字段
+    handleSelectFieldName() {},
+    querySearchFieldNameSuggestions(queryString, cb) {
+      searchProductFields({ searchWords: queryString }).then((res) => {
+        if (res.data.code == 1000) {
+          let retData = res.data.data.data;
+          let restaurants = [];
+          retData.forEach((element) => {
+            restaurants.push({ value: element.keyword });
+          });
+
+          let results = queryString
+            ? restaurants.filter(this.createFilter(queryString))
+            : restaurants;
+          cb(results);
+        }
+      });
+    },
+    // 绑定enter事件
+    enterKeyup() {
+      document.addEventListener("keyup", this.enterKey);
+    },
+    enterKeyupDestroyed() {
+      document.removeEventListener("keyup", this.enterKey);
+    },
+    enterKey(event) {
+      const componentName = this.$options.name;
+      if (componentName == "EngineerMainForm") {
+        const code = event.keyCode
+          ? event.keyCode
+          : event.which
+          ? event.which
+          : event.charCode;
+        if (code == 13) {
+          this.onSubmit();
+        }
+      }
+    },
+  },
+};
+</script>7
+
+<style lang="scss" scoped>
+.el-button--mini, .el-button--mini.is-round {
+    padding: 7px 23px;
+}
+.el-col-16 {
+    width: 50.66667%;
+}
+.el-header,
+.el-footer {
+  background-color: #b3c0d1;
+  color: #333;
+  text-align: center;
+  line-height: 60px;
+}
+
+.el-aside {
+  background-color: #d3dce6;
+  color: #333;
+  text-align: center;
+  line-height: 200px;
+}
+
+.el-main {
+  background-color: #e9eef3;
+  color: #333;
+  text-align: center;
+  line-height: 160px;
+}
+
+body > .el-container {
+  margin-bottom: 40px;
+}
+
+.el-container:nth-child(5) .el-aside,
+.el-container:nth-child(6) .el-aside {
+  line-height: 260px;
+}
+
+.el-container:nth-child(7) .el-aside {
+  line-height: 320px;
+}
+.grid-content {
+  margin-right: 20px;
+}
+.header > span {
+  color: white;
+}
+.el-form-item:nth-child(1n+2){
+  margin-top: 70px;
+}
+.el-button > span{
+  color:white;
+}
+// 这是上传图片父容器。
+.el-upload {
+  margin-top: 30px;
+  border: 1px dashed #d9d9d9;
+   border-radius: 6px;
+   position: relative;
+   overflow: hidden;
+   display: flex;
+   justify-content: space-around;
+   align-items: center;
+   margin-right: 100px;
+   width: 500px;
+   height: 600px;
+   // 上传图片子容器
+    .avatar { 
+       width: auto;
+       height: auto;
+       max-width: 100%;
+       max-height: 100%;
+       min-width: 500px;
+       min-height: 450px;
+       display: block;
+    }
+}
+.form-label-title{
+  line-height:50px;
+  margin-top: -50px;
+}
+select {
+  min-width: 200px;
+  min-height: 200px;
+}
+
+</style>

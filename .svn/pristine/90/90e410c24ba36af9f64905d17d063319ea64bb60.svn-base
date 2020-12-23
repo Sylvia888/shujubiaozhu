@@ -9,86 +9,61 @@
       </el-row>
     </el-header>
     <!-- 中心主体区域 -->
-    <el-container>
-      <el-aside width="500px">
-             <!-- 图片 -->
-            <el-col :span="12">
-               <div class="el-upload">
-                   <el-image
-                     class="avatar"
-                     @load="imageloadSuccess"
-                     :src="tableData && tableData.sourceUrl"
-                     :preview-src-list="[tableData && tableData.sourceUrl]"
-                   >
-                   </el-image>
-               </div>
-            </el-col>
-      </el-aside>
-        <!-- 右侧文本 -->
-       <el-main class="rightbox">
-              <!-- 关联区域 -->
-            <div class="formbox">
-              <el-form :model="formMess">
-                   <!-- 广告主 -->
-                    <el-col :span="5" >
-                            <el-input
-                               class="inline-input"
-                               v-model="formMess.sponsorName"
-                               placeholder="广告主"
-                               :trigger-on-focus="true"
-                               ref="sponsorNameRef"
-                               clearable
-                             >
-                           </el-input>
-                           <div class="dd">
-                               <select multiple @change="sponsorOnChageValue">
-                                  <option v-for="(item,i) in selectItems" :value="i" >
-                                       {{item.adName}}
-                                 </option>
-                               </select>
-                           </div>
-                    </el-col>
-                    <!-- 品牌 -->
-                    <el-col :span="5">
-                         <el-input
-                           class="inline-input"
-                           v-model="formMess.bandName"
-                           placeholder="请输入品牌搜索"
-                           :trigger-on-focus="true"
-                           clearable 
-                           @input="searchOnChange"
-                         >
-                         </el-input>
-                         <div class="dd">
-                            <select multiple v-if="selectBrandItems" @change="brandOnChageValue">
-                                <option v-for="(item,i) in selectBrandItems" :value="i">
-                                    {{item.bName}}
-                                </option>
-                            </select>
-                         </div>
-                    </el-col>
-                    <!--产品字段 -->
-                     <el-col :span="5">
-                          <el-input
-                            class="inline-input"
-                            v-model="formMess.fieldName"
-                            placeholder="产品字段"
-                            :trigger-on-focus="true"
-                            clearable
-                          >
-                          </el-input>
-                          <div class="dd">
-                             <select multiple v-if="productFieldItems" @change="productFieldOnChageValue">
-                              <option v-for="(item,i) in productFieldItems" :value="i">
-                                    {{item.keyword}}
-                              </option>
-                             </select>
-                          </div>
-                    </el-col>
-              </el-form>
+    <el-main>
+      <el-row>
+        <el-col :span="16">
+           <div class="el-upload">
+              <el-image
+                class="avatar"
+                @load="imageloadSuccess"
+                :src="tableData && tableData.sourceUrl"
+                :preview-src-list="[tableData && tableData.sourceUrl]"
+              >
+              </el-image>
             </div>
-            <!-- button区域 -->
-             <div class="buttonbox">
+        </el-col>
+        <div class=rightbox>
+        <el-col :span="8">
+          <el-row>
+            <el-input v-model="search" placeholder="请输入品牌" @input="searchOnChange"></el-input>
+          </el-row>
+          <el-row>
+          <el-form :model="formMess">
+             <el-row class="form-label-title">
+                <el-col :span="8">广告主
+                </el-col>
+                 <el-col :span="8">品牌
+                </el-col>
+                 <el-col :span="8">产品字段
+                </el-col>
+             </el-row>
+             <el-row type="flex" class="row-bg" justify="space-around">
+               <el-form-item >
+               <el-col :span="8" >
+               <select multiple @change="sponsorOnChageValue">
+                   <option v-for="(item,i) in selectItems" :value="i" >
+                        {{item.adName}}
+                  </option>
+                  </select>
+                </el-col>
+                 <el-col :span="8">
+                 <select multiple v-if="selectBrandItems" @change="brandOnChageValue">
+                   <option v-for="(item,i) in selectBrandItems" :value="i">
+                        {{item.bName}}
+                  </option>
+                  </select>
+                </el-col>
+                 <el-col :span="8">
+                 <select multiple v-if="productFieldItems" @change="productFieldOnChageValue">
+                   <option v-for="(item,i) in productFieldItems" :value="i">
+                        {{item.keyword}}
+                  </option>
+                  </select>
+                </el-col>
+               </el-form-item>
+             </el-row>
+              <el-row>
+                <el-form-item class="">
                     <el-button
                       type="primary"
                       size="mini"
@@ -98,23 +73,54 @@
                       >提交</el-button
                     >
                     <el-button
-                      type="info"
+                      type="danger"
                       size="mini"
                       @click="unconfirmSubmit"
                       round
                       >待确认</el-button
                     >
                     <el-button
-                      type="warning"
+                      type="danger"
                       size="mini"
                       @click="noAdvSubmit"
                       round
-                      >无广告主
-                    </el-button>
-                 <!-- /button区域 -->
-             </div>
-       </el-main>
-    </el-container>
+                      >无广告主</el-button
+                    >
+                </el-form-item>
+              </el-row>
+            </el-form>
+          </el-row>
+          <el-row type="flex" class="row-bg" justify="space-around">
+            <el-autocomplete
+                    class="inline-input"
+                    v-model="formMess.sponsorName"
+                    :fetch-suggestions="querySearchSponsorNameSuggestions"
+                    placeholder="广告主"
+                    :trigger-on-focus="true"
+                    @select="handleSelectSponsorName"
+                    ref="sponsorNameRef"
+                  ></el-autocomplete>
+                   <el-autocomplete
+                    class="inline-input"
+                    v-model="formMess.bandName"
+                    :fetch-suggestions="querySearchBandNameSuggestions"
+                    placeholder="请输入品牌"
+                    :trigger-on-focus="true"
+                    @select="handleSelectBandName"
+                  ></el-autocomplete>
+                   <el-autocomplete
+                    class="inline-input"
+                    v-model="formMess.fieldName"
+                    :fetch-suggestions="querySearchFieldNameSuggestions"
+                    placeholder="请输入产品字段"
+                    :trigger-on-focus="true"
+                    @select="handleSelectFieldName"
+                  ></el-autocomplete>
+          </el-row>
+        </el-col>
+        </div>
+      </el-row>
+    </el-main>
   </el-container>
 </template>
 
@@ -214,7 +220,7 @@ export default {
     },
     // 点击搜索
     async SearchEngineer() {
-       const {data} = await sponsorLinkageSearch({searchWords:this.formMess.bandName})
+       const {data} = await sponsorLinkageSearch({searchWords:this.search})
        if(data.code === 1000){
          this.selectItems = data.data;
          this.selectBrandItems = this.selectItems[0].brandItems
@@ -231,9 +237,9 @@ export default {
       this.formMess.bandName = null;
       this.formMess.fieldName = null;
       this.formMess.status = 2;
-      this.search = null;
-      this.selectSponsorIdx = 0 ;
-      this.selectBrandIdx = 0 ;
+      
+        this.selectSponsorIdx = 0
+        this.selectBrandIdx = 0
     },
     //加载数据
     getdata() {
@@ -261,7 +267,7 @@ export default {
       submitData(this.formMess).then((response) => {
         if (response.data.code == 1000) {
           this.getdata();
-          this.$message.success('待确认成功')
+          this.$message.success('提交成功')
         } else {
           this.$message.error(response.data.message);
         }
@@ -286,9 +292,71 @@ export default {
       submitData(this.formMess).then((response) => {
         if (response.data.code == 1000) {
           this.getdata();
-          this.$message.success('无广告提交成功')
+          this.$message.success('提交成功')
         } else {
           this.$message.error(response.data.message);
+        }
+      });
+    },
+    // 搜索广告主
+    handleSelectSponsorName() {},
+    querySearchSponsorNameSuggestions(queryString, cb) {
+      searchSponsorName({ searchWords: queryString }).then((res) => {
+        if (res.data.code == 1000) {
+          let retData = res.data.data.data;
+          let restaurants = [];
+          retData.forEach((element) => {
+            restaurants.push({ value: element.adName });
+          });
+
+          let results = queryString
+            ? restaurants.filter(this.createFilter(queryString))
+            : restaurants;
+          cb(results);
+        }
+      });
+    },
+    createFilter(queryString) {
+      return (restaurant) => {
+        return (
+          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
+          0
+        );
+      };
+    },
+    // 搜索品牌
+    handleSelectBandName() {},
+    querySearchBandNameSuggestions(queryString, cb) {
+      searchBandsName({ searchWords: queryString }).then((res) => {
+        if (res.data.code == 1000) {
+          let retData = res.data.data.data;
+          let restaurants = [];
+          retData.forEach((element) => {
+            restaurants.push({ value: element.bName });
+          });
+
+          let results = queryString
+            ? restaurants.filter(this.createFilter(queryString))
+            : restaurants;
+          cb(results);
+        }
+      });
+    },
+    // 搜索产品字段
+    handleSelectFieldName() {},
+    querySearchFieldNameSuggestions(queryString, cb) {
+      searchProductFields({ searchWords: queryString }).then((res) => {
+        if (res.data.code == 1000) {
+          let retData = res.data.data.data;
+          let restaurants = [];
+          retData.forEach((element) => {
+            restaurants.push({ value: element.keyword });
+          });
+
+          let results = queryString
+            ? restaurants.filter(this.createFilter(queryString))
+            : restaurants;
+          cb(results);
         }
       });
     },
@@ -317,16 +385,36 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// .rightbox {
+//   margin-left:15px
+// }
 .el-button--mini, .el-button--mini.is-round {
-    padding: 9px 70px;
+    padding: 7px 23px;
+}
+.el-col-16 {
+    width: 50.66667%;
 }
 .el-header,
 .el-footer {
   background-color: #b3c0d1;
   color: #333;
-  font-size:25px;
+  text-align: center;
   line-height: 60px;
 }
+.el-aside {
+  background-color: #d3dce6;
+  color: #333;
+  text-align: center;
+  line-height: 200px;
+}
+
+.el-main {
+  background-color: #e9eef3;
+  color: #333;
+  text-align: center;
+  line-height: 160px;
+}
+
 body > .el-container {
   margin-bottom: 40px;
 }
@@ -335,8 +423,15 @@ body > .el-container {
 .el-container:nth-child(6) .el-aside {
   line-height: 260px;
 }
+
+.el-container:nth-child(7) .el-aside {
+  line-height: 320px;
+}
+.grid-content {
+  margin-right: 20px;
+}
 .header > span {
-  color: red;
+  color: white;
 }
 .el-form-item:nth-child(1n+2){
   margin-top: 70px;
@@ -356,7 +451,7 @@ body > .el-container {
    align-items: center;
    margin-right: 100px;
    width: 500px;
-   height: 600px;
+   height: 700px;
    // 上传图片子容器
     .avatar { 
        width: auto;
@@ -364,27 +459,17 @@ body > .el-container {
        width: 100%;
        height: 100%;
        min-width: 500px;
-       min-height: 450px;
+       min-height: 500px;
        display: block;
     }
 }
-.rightbox{
-   .formbox { 
-     margin-top:20px
-    }
-    .inline-input {
-      display:block;
-      margin-right:10px;
-      width:150px
-    }
-    // 下拉框
-   select {
-       margin-top:5px;
-       min-width: 150px;
-       min-height: 200px;
-    }
-   .buttonbox {
-     margin-top:300px
-    }
+
+.form-label-title{
+  line-height:50px;
+  margin-top: -50px;
+}
+select {
+  min-width: 200px;
+  min-height: 200px;
 }
 </style>
