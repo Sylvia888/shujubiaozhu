@@ -96,24 +96,11 @@ export default {
       },
     };
   },
+
   created() {
     this.getList();
   },
   methods: {
-    // 导出为sql文件方法
-    fakeClick(obj) {
-       var ev = document.createEvent("MouseEvents");
-       ev.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-       obj.dispatchEvent(ev);
-    },
-    exportRaw(name, data) {
-         var urlObject = window.URL || window.webkitURL || window;
-         var export_blob = new Blob([data]);
-         var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
-         save_link.href = urlObject.createObjectURL(export_blob);
-         save_link.download = name;
-         this.fakeClick(save_link);
-    },
     //分页
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -126,7 +113,7 @@ export default {
       this.params.current_page = val;
       this.getList();
     },
-    
+
     getList() {
       const params = {
         per_page: this.params.per_page,
@@ -198,7 +185,6 @@ export default {
           "reCheckStatusText"
         ];
         let result = [];
-        console.log(result)
         arrayData.forEach((element) => {
           element.forEach((row) => {
             result.push(row)
@@ -212,44 +198,6 @@ export default {
           autoWidth: true,
           bookType: "xlsx",
         });
-        // console.log(result);
-        
-      // 拼接SQL字符串
-      var str = "INSERT INTO `task_result` (`rf_id`,`batchNo`,`file_url`,`sponsor`,`brand`,`product`,`note`) VALUES ";
-      var str2 = "" ;
-      for ( var i = 0;i<result.length;i++) { 
-          // id值
-          let airuiRfId = result[i].airuiRfId 
-          // 产品批次号
-          let bCode = result[i].bCode
-          // 图片
-          let sourceUrl = result[i].sourceUrl
-          // console.log(sourceUrl);
-          // 广告主
-          let adName = result[i].adName ? result[i].adName : ''
-          // 品牌
-          let bName = result[i].bName ? result[i].bName : ''
-          // 产品字段
-          let keyword = result[i].keyword ? result[i].keyword : ''
-          // 可以填入的字段 
-          let note = ''
-             if (result[i].engineerStatus == 3) {
-               note = " 放弃"
-             }else if (result[i].engineerStatus == 1) {
-               note = " 待确定"
-             }else {
-               note = " "
-             }
-          // str2 += "(" + result[i].airuiRfId + ",'" + result[i].bCode + "','" + result[i].sourceUrl + "','" + result[i].adName + "','" + result[i].bName + "','" + result[i].keyword + "','" + '"待确认"'+"),"
-          str2 += "(" + airuiRfId + ",'" + bCode + "','" + sourceUrl + "','" + adName + "','" + bName + "','" + keyword + "','" + note+"'),"
-        }
-         let exportContent = str + str2.substring(0 ,str2.length-1) + ";"
-        //  console.log(exportContent);
-         let fileName = result[0].bCode
-         this.exportRaw(fileName + '.sql',exportContent);
-        //  置空表单
-         result = null
-        //  console.log(result);
       });
     },
     formatJson(filterVal, exportDdata) {
@@ -262,6 +210,8 @@ export default {
           }
         })
       );
+      this.result= null
+      console.log(result)
     },
   },
 };
