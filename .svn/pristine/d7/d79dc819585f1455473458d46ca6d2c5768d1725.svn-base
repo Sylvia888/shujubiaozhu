@@ -3,11 +3,15 @@
     <div class="main">
     <!-- 表单区域 -->
       <el-form label-width="80px" v-model="ruleForm" ref="ruleForm">
-        <!-- <el-form-item label="描述">
+        <el-form-item label="类型">
+          <el-radio v-model="ruleForm.arType" label="0">图片</el-radio>
+          <el-radio v-model="ruleForm.arType" label="1">视频</el-radio>
+        </el-form-item>
+        <el-form-item label="描述">
           <el-input  type="textarea" placeholder="请输入内容" v-model="ruleForm.description"></el-input>
-        </el-form-item> -->
-        <!-- 获取批次号（订单号） -->
-         <el-form-item label="订单号">
+        </el-form-item>
+        <!-- 获取批次号 -->
+         <el-form-item label="批次号">
           <el-autocomplete
             class="inline-input"
             v-model="ruleForm.bCode"
@@ -16,17 +20,6 @@
             :trigger-on-focus="true"
             @select="handleSelectSponsorName"
             ref="sponsorNameRef"
-            >
-          </el-autocomplete>
-        </el-form-item>
-        <el-form-item label="组编号">
-          <el-autocomplete
-            v-model="ruleForm.groupCode"
-            :fetch-suggestions="querygetSelectGroupNoSuggestions"
-            placeholder="请输入内容"
-            :trigger-on-focus="true"
-            @select="handleSelecttGroupCode"
-            ref="groupCodeRef"
             >
           </el-autocomplete>
         </el-form-item>
@@ -79,7 +72,7 @@ import {
   delMsds,
 } from "@/api/msds";
 // 批次号
-import { getSelectBatchNo,getSelectGroupNo } from "@/api/admintask" ;
+import { getSelectBatchNo } from "@/api/admintask" ;
 export default {
   name: "Task",
   components: { pagination },
@@ -89,12 +82,11 @@ export default {
       fileList: [],
       token: "",
       ruleForm: {
+        arType: "0",
         // 描述
         description: "",
         // 批次号编码
         bCode: "",
-        // 组长编码
-        groupCode: ""
       },
       bool: true,
       postMethod: "/AdministratorOperation/batchImportData",
@@ -136,14 +128,20 @@ export default {
         this.$refs.sponsorNameRef.$refs.input.focus();
       });
     },
-    handleRemove(file, fileList) {},
-    handlePreview(file) {},
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
     // 失败方法
     handleError(err, file) {
+      // console.log(err, file)
       this.$message.error('上传失败')
     },
     // 成功方法
     handleSuccess(res, file) {
+    console.log(res, file)
       if(res.code == 1000){
         this.$message.success(res.message)
         // 成功后清空已上传的文件列表
@@ -154,9 +152,11 @@ export default {
        // 失败后清空已上传的文件列表
       this.$refs.upload.clearFiles()
     },
-    handleExceed(files, fileList) { }, 
+    handleExceed(files, fileList) {
+      console.log(files,fileList);
+    }, 
     async handleChange() {},
-    // 批次号(订单号)提醒
+    // 批次号提醒
     handleSelectSponsorName() {},
     querygetSelectBatchNoSuggestions(queryString, cb) {
       getSelectBatchNo({ searchWords: queryString }).then((res) => {
@@ -167,25 +167,6 @@ export default {
           let restaurants = [];
           retData.forEach((element) => {
             restaurants.push({ value: element.bCode });
-          });
-          let results = queryString
-            ? restaurants.filter(this.createFilter(queryString))
-            : restaurants
-          cb(results);
-        }
-      });
-    },
-     // 组编号提醒
-    handleSelecttGroupCode() {},
-    querygetSelectGroupNoSuggestions(queryString, cb) {
-      getSelectGroupNo({ searchWords: queryString }).then((res) => {
-        // console.log(res)
-        if (res.data.code == 1000) {
-          let retData = res.data.data.data;
-          // console.log(retData);
-          let restaurants = [];
-          retData.forEach((element) => {
-            restaurants.push({ value: element.groupCode });
           });
           let results = queryString
             ? restaurants.filter(this.createFilter(queryString))
@@ -205,6 +186,7 @@ export default {
     // 提交
     submitForm(ee) {
         this.$refs.upload.submit()
+        this.$message.success('提交成功')
         return false
     },
   }
@@ -244,8 +226,5 @@ export default {
 .main-btn {
   width: 100%;
   margin: 0 auto;
-}
-.inline-input {
-  width:300px;
 }
 </style>

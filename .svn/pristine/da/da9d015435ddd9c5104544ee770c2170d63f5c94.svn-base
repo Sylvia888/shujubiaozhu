@@ -48,9 +48,9 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex"
-import pagination from "@/components/Pagination"
-import { getBatchNoList } from "../../api/sorter"
+import { mapGetters } from "vuex";
+import pagination from "@/components/Pagination";
+import { getBatchNoList } from "../../api/sorter";
 import {
   fetchMsdsList,
   fetchChemicalsTypes,
@@ -62,12 +62,12 @@ import {
   updateFirstAidMeasures,
   importExcel,
   delMsds,
-} from "@/api/msds"
+} from "@/api/msds";
 
 export default {
   name: "Sorter",
   components: { pagination },
-  data () {
+  data() {
     return {
       loading: false,
       tableData: [],
@@ -76,55 +76,58 @@ export default {
         current_page: 1,
         total: 0,
       },
-    }
+    };
   },
 
-  created () {
-    this.getList()
+  created() {
+    this.getList();
   },
   methods: {
     //分页
-    handleSelectionChange (val) {
-      this.multipleSelection = val
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
     },
-    handleSizeChange (val) {
-      this.params.per_page = val
-      this.getList()
-      console.log(`每页 ${val} 条`)
+    handleSizeChange(val) {
+      this.params.per_page = val;
+      this.getList();
+      console.log(`每页 ${val} 条`);
     },
-    handleCurrentChange (val) {
+    handleCurrentChange(val) {
       // this.params.total = val;
-      this.params.current_page = val
-      this.getList()
+      this.params.current_page = val;
+      this.getList();
       // console.log(`每页 ${val} 条`);
     },
 
     //数据标注跳转
-    handleClick (row) {
-      console.log(row.batchTotalCount)
+    handleClick(row) {
+      console.log(row.batchTotalCount);
       this.$router.push({
         path: "/QualityControl/SorterMainForm",
         query: { num: row.batchTotalCount, batchId: row.id, row: row },
-      }) //页面跳转带参数
+      }); //页面跳转带参数
     },
 
     //列表加载
-    getList () {
-      console.log(11111)
-      let that = this
+    getList() {
+      console.log(11111);
+      let that = this;
       const params = {
         per_page: this.params.per_page,
         current_page: this.params.current_page,
         searchWords: this.searchWords,
-      }
+      };
       getBatchNoList(that.params).then((response) => {
         if (response.data.code == 1000) {
-          this.tableData = response.data.data.data
-          this.params.totle = response.data.data.total //分页
+          // alert(response.data.message);
+          this.tableData = response.data.data.data;
+
+          this.params.totle = response.data.data.total; //分页
         } else {
-          this.menu = response.data.data
+          this.menu = response.data.data;
+          console.log(this.menu);
         }
-      })
+      });
     },
   },
 };
