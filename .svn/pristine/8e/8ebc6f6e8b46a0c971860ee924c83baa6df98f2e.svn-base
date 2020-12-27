@@ -1,12 +1,11 @@
 <template>
   <el-container>
-    <!-- 工程师数据标注页面 -->
     <!-- 头部区域 -->
     <el-header>
       <el-row type="flex" class="header">
-        总数量<span>{{ tableData ? tableData.batchTotalCount : 0 }}</span
-        >共标注<span>{{ tableData ? tableData.markedTotalCount : 0 }}</span
-        >我的标注数量<span>{{ tableData ? tableData.iMarkedCount : 0 }}</span>
+        一共<span>{{ this.$route.query.num }}</span
+        >张/已做<span>{{ tableData && tableData.finishCount }}</span
+        >张
       </el-row>
     </el-header>
     <!-- 中心主体区域 -->
@@ -17,7 +16,6 @@
           <div class="el-upload">
             <el-image
               class="avatar"
-              @load="imageloadSuccess"
               :src="tableData && tableData.sourceUrl"
               :preview-src-list="[tableData && tableData.sourceUrl]"
             >
@@ -31,7 +29,7 @@
         <div class="formbox">
           <el-form :model="formMess">
             <!-- 广告主 -->
-            <el-col :span="7">
+            <el-col :span="5">
               <el-input
                 class="inline-input"
                 v-model="formMess.sponsorName"
@@ -49,7 +47,7 @@
               </div>
             </el-col>
             <!-- 品牌 -->
-            <el-col :span="7">
+            <el-col :span="5">
               <el-input
                 class="inline-input"
                 v-model="formMess.bandName"
@@ -73,7 +71,7 @@
               </div>
             </el-col>
             <!--产品字段 -->
-            <el-col :span="7">
+            <el-col :span="5">
               <el-input
                 class="inline-input"
                 v-model="formMess.fieldName"
@@ -106,11 +104,11 @@
             round
             >提交</el-button
           >
-          <el-button type="info" size="mini" @click="unconfirmSubmit" round
-            >待确认</el-button
+          <el-button type="info" size="mini" @click="noAdvSubmit" round
+            >无广告主</el-button
           >
-          <el-button type="warning" size="mini" @click="noAdvSubmit" round
-            >无广告主
+          <el-button type="warning" size="mini" @click="cannottellSubmit" round
+            >无法判断
           </el-button>
           <!-- /button区域 -->
         </div>
@@ -120,19 +118,18 @@
 </template>
 
 <script>
-import "viewerjs/dist/viewer.css"
-import axios from "axios"
-import { mapGetters } from "vuex"
-import pagination from "@/components/Pagination"
-import ImageViewer from '@/components/Wcimage/ImageViewer'
+import 'viewerjs/dist/viewer.css'
+import axios from 'axios'
+import { mapGetters } from 'vuex'
+import pagination from '@/components/Pagination'
 import {
-  labelLoadData,
+  getReCheckDataList,
   searchSponsorName,
   searchBandsName,
   searchProductFields,
-  submitData,
-  sponsorLinkageSearch
-} from "../../api/engineer"
+  reCheckSubmitOperate,
+  sponsorLinkageSearch,
+} from '../../api/engineer'
 
 import {
   fetchMsdsList,
@@ -145,12 +142,12 @@ import {
   updateFirstAidMeasures,
   importExcel,
   delMsds,
-} from "@/api/msds"
+} from '@/api/msds'
 
 export default {
-  name: "EngineerMainForm",
+  name: 'EngineerrecheckData',
   components: { pagination },
-  data () {
+  data() {
     return {
       formMess: {
         arId: 0,
@@ -169,29 +166,24 @@ export default {
       selectBrandIdx: 0,
     }
   },
-  created () {
+  created() {
     this.batchId = this.$route.query.batchId
     this.getdata()
     this.SearchEngineer()
   },
-  mounted () {
+  mounted() {
     this.$refs.id.$refs.input.focus()
     this.enterKeyup()
   },
-  destroyed () {
+  destroyed() {
     this.enterKeyupDestroyed()
   },
   methods: {
-    // 加载图片
-    imageloadSuccess (e) {
-      console.log(e)
-    },
-    // 搜索
-    searchOnChange (e) {
+    searchOnChange(e) {
       this.SearchEngineer()
     },
     // 广告主
-    sponsorOnChageValue (e) {
+    sponsorOnChageValue(e) {
       let idx = e.target.value
       this.selectSponsorIdx = idx
       this.formMess.sponsorName = this.selectItems[idx].adName
@@ -203,22 +195,24 @@ export default {
       this.selectBrandIdx = 0
     },
     // 品牌
-    brandOnChageValue (e) {
+    brandOnChageValue(e) {
       let idx = e.target.value
       this.formMess.bandName = this.selectBrandItems[idx].bName
       this.formMess.sponsorName = this.selectItems[this.selectSponsorIdx].adName
       this.selectBrandIdx = idx
     },
     // 产品字段
-    productFieldOnChageValue (e) {
+    productFieldOnChageValue(e) {
       let idx = e.target.value
       this.formMess.fieldName = this.productFieldItems[idx].keyword
       this.formMess.sponsorName = this.selectItems[this.selectSponsorIdx].adName
       this.formMess.bandName = this.selectBrandItems[this.selectBrandIdx].bName
     },
-    //  数据标注(工程师)通过品牌搜索广告主关联信息
-    async SearchEngineer () {
-      const { data } = await sponsorLinkageSearch({ searchWords: this.formMess.bandName })
+    // 点击搜索
+    async SearchEngineer() {
+      const { data } = await sponsorLinkageSearch({
+        searchWords: this.formMess.bandName,
+      })
       if (data.code === 1000) {
         this.selectItems = data.data
         this.selectBrandItems = this.selectItems[0].brandItems
@@ -230,7 +224,7 @@ export default {
       }
       console.log(this.selectItems)
     },
-    getnull () {
+    getnull() {
       this.formMess.sponsorName = null
       this.formMess.bandName = null
       this.formMess.fieldName = null
@@ -240,17 +234,18 @@ export default {
       this.selectBrandIdx = 0
     },
     //加载数据
-    getdata () {
+    getdata() {
       this.getnull()
       const prames = {
-        batchId: this.batchId
+        batchId: this.batchId,
       }
-      labelLoadData(prames).then((response) => {
-        console.log(response)
+      getReCheckDataList(prames).then((response) => {
         if (response.data.code == 1000) {
           this.tableData = response.data.data
           this.formMess.arId = this.tableData.id
-          console.log(this.tableData)
+          this.formMess.bandName = this.tableData.brandText
+          this.formMess.fieldName = this.tableData.productFieldText
+          this.formMess.sponsorName = this.tableData.sponsorText
         } else {
           this.$message.error(response.data.message)
         }
@@ -258,66 +253,61 @@ export default {
         this.$refs.id.$refs.input.focus()
       })
     },
-    //待确认    	1待确认 2已提交（有广告主） 3无广告主
-    unconfirmSubmit () {
-      this.formMess.status = 1
-      // 数据标注（工程师）提交标注操作
-      submitData(this.formMess).then((response) => {
-        if (response.data.code == 1000) {
-          this.getdata()
-          this.$message.success('待确认成功')
-        } else {
-          this.$message.error(response.data.message)
-        }
-      })
-    },
     //提交
     onSubmit: function () {
-      this.formMess.status = 2
-      submitData(this.formMess).then((response) => {
+      this.formMess.reStatus = 2
+      reCheckSubmitOperate(this.formMess).then((response) => {
         if (response.data.code == 1000) {
           this.getdata()
-          this.$message.success('提交成功')
         } else {
-          // console.log(response)
           this.$message.error(response.data.message)
         }
       })
     },
     // 无广告提交
-    noAdvSubmit () {
-      this.formMess.status = 3
-      submitData(this.formMess).then((response) => {
+    noAdvSubmit() {
+      this.formMess.reStatus = 3
+      reCheckSubmitOperate(this.formMess).then((response) => {
         if (response.data.code == 1000) {
           this.getdata()
-          this.$message.success('无广告提交成功')
+        } else {
+          this.$message.error(response.data.message)
+        }
+      })
+    },
+    // 无法判断
+    cannottellSubmit() {
+      this.formMess.reStatus = 4
+      reCheckSubmitOperate(this.formMess).then((response) => {
+        if (response.data.code == 1000) {
+          this.getdata()
         } else {
           this.$message.error(response.data.message)
         }
       })
     },
     // 绑定enter事件
-    enterKeyup () {
-      document.addEventListener("keyup", this.enterKey)
+    enterKeyup() {
+      document.addEventListener('keyup', this.enterKey)
     },
-    enterKeyupDestroyed () {
-      document.removeEventListener("keyup", this.enterKey)
+    enterKeyupDestroyed() {
+      document.removeEventListener('keyup', this.enterKey)
     },
-    enterKey (event) {
+    enterKey(event) {
       const componentName = this.$options.name
-      if (componentName == "EngineerMainForm") {
+      if (componentName == 'EngineerrecheckData') {
         const code = event.keyCode
           ? event.keyCode
           : event.which
-            ? event.which
-            : event.charCode
+          ? event.which
+          : event.charCode
         if (code == 13) {
           this.onSubmit()
         }
       }
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -329,7 +319,7 @@ export default {
 .el-footer {
   background-color: #b3c0d1;
   color: #333;
-  font-size: 20px;
+  font-size: 25px;
   line-height: 60px;
 }
 body > .el-container {
@@ -380,16 +370,16 @@ body > .el-container {
   .inline-input {
     display: block;
     margin-right: 10px;
-    width: 200px;
+    width: 150px;
   }
   // 下拉框
   select {
     margin-top: 5px;
-    min-width: 200px;
-    min-height: 300px;
+    min-width: 150px;
+    min-height: 200px;
   }
   .buttonbox {
-    margin-top: 400px;
+    margin-top: 300px;
   }
 }
 </style>

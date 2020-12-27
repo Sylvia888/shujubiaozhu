@@ -3,8 +3,8 @@
     <!-- 数据质检详细页面 -->
     <el-header>
       <el-row type="flex" class="header">
-        一共<span>{{ this.$route.query.num }}</span
-        >张/已做<span>{{ tableData.finishCount }}</span
+        应抽检<span>{{ tableData && tableData.shouldCheckCount }}</span
+        >已抽检<span>{{ tableData && tableData.useCheckCount }}</span
         >张
       </el-row>
     </el-header>
@@ -66,24 +66,12 @@
 <script>
 import { mapGetters } from "vuex"
 import pagination from "@/components/Pagination"
-import { labelLoadData } from "../../api/sorter"
-import { labelSubmitOperate } from "../../api/sorter"
-
-import {
-  fetchMsdsList,
-  fetchChemicalsTypes,
-  addMsdsBaseInfo,
-  updateMsdsBaseInfo,
-  addMsdsEmergencyDisposal,
-  updateMsdsEmergencyDisposal,
-  addFirstAidMeasures,
-  updateFirstAidMeasures,
-  importExcel,
-  delMsds,
-} from "@/api/msds"
-
+// 组长提交数据
+import { submitData } from "@/api/GroupLeader"
+// 获取组长抽检数据
+import { drawlots } from "@/api/GroupLeader"
 export default {
-  name: "SorterMainForm",
+  name: "GroupLeaderSpotCheckmainform",
   components: { pagination },
   data () {
     return {
@@ -91,33 +79,33 @@ export default {
         arId: "",
         isPass: 0,
       },
-      tableData: []
+      tableData: [],
+      batchId:0,
+      ratio:0,
     }
   },
   created () {
-    this.formMess.batchId = this.$route.query.batchId
+    this.batchId = this.$route.query.batchId
+    this.ratio = this.$route.query.ratio
     this.getdata()
   },
 
   methods: {
     //加载数据
     getdata () {
-      const prames = {
-        batchId: this.$route.query.batchId,
-      }
-      labelLoadData(prames).then((response) => {
+      drawlots({batchId:this.batchId,ratio:this.ratio}).then((response) => {
         if (response.data.code == 1000) {
           this.tableData = response.data.data
           this.formMess.arId = this.tableData.id
         } else {
-          this.$message.error(response.data.message)
+           this.$message.error(response.data.message)
         }
       })
     },
-    //不通过
+    // 不通过
     onUnconfirm () {
       this.formMess.isPass = 1
-      labelSubmitOperate(this.formMess).then((response) => {
+      submitData(this.formMess).then((response) => {
         if (response.data.code == 1000) {
           this.getdata()
         } else {
@@ -125,10 +113,10 @@ export default {
         }
       })
     },
-    //通过
-    onSave: function () {
+    // 通过
+    onSave () {
       this.formMess.isPass = 2
-      labelSubmitOperate(this.formMess).then((response) => {
+      submitData(this.formMess).then((response) => {
           if (response.data.code == 1000) {
             this.getdata()
           } else {

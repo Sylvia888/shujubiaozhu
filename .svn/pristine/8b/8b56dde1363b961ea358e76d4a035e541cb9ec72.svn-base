@@ -1,0 +1,311 @@
+<template>
+  <div class="msds-container view-container">
+    <el-table
+      :data="tableData"
+      :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
+      border
+      style="width: 100%; text-align: center"
+    >
+      <el-table-column fixed prop="id" label="id" width="150">
+      </el-table-column>
+      <el-table-column fixed prop="bCode" label="订单号" width="210">
+      </el-table-column>
+      <el-table-column fixed label="组编号" width="120">
+         <template slot-scope="scope">
+          {{ scope.row.groupCode + "-N" + scope.row.id}}
+        </template>
+      </el-table-column>
+      <el-table-column
+        fixed
+        prop="batchTotalCount"
+        label="批次总数量"
+        width="150"
+      >
+      </el-table-column>
+      
+      <el-table-column
+        fixed
+        prop="batchHasDoneTotalCount"
+        label="总做数量"
+        width="150"
+      >
+      </el-table-column>
+      <el-table-column
+        fixed
+        prop="batchCompleteTotalCount"
+        label="已完成数量"
+        width="150"
+      >
+      </el-table-column>
+      <el-table-column label="操作" width="300">
+        <template slot-scope="scope">
+          <el-button
+            type="primary"
+            :loading="scope.row.remindLoading"
+            @click="handleClick(scope.row)"
+            >导出</el-button
+          >
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="params.current_page"
+      :page-size="params.per_page"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="params.totle"
+    >
+    </el-pagination>
+  </div>
+</template>
+
+<script>
+import { mapGetters } from "vuex";
+import pagination from "@/components/Pagination";
+import {
+  fetchMsdsList,
+  fetchChemicalsTypes,
+  addMsdsBaseInfo,
+  updateMsdsBaseInfo,
+  addMsdsEmergencyDisposal,
+  updateMsdsEmergencyDisposal,
+  addFirstAidMeasures,
+  updateFirstAidMeasures,
+  importExcel,
+  delMsds,
+} from "@/api/msds";
+import { getBatchNoList } from "../../api/admintask";
+import { batchExportData } from "../../api/admintask";
+
+export default {
+  name: "Export",
+  components: { pagination },
+  data() {
+    return {
+      tableData: [],
+      exportDdata: [],
+      params: {
+        per_page: 10,
+        current_page: 1,
+        total: 0,
+        bCode: "",
+      },
+      exportParams: {
+        per_page: 50,
+        current_page: 1,
+        total: 0,
+        bCode: null,
+        batchId: 0,
+      },
+    };
+  },
+  created() {
+    this.getList();
+  },
+  methods: {
+    // 导出为sql文件方法
+    fakeClick(obj) {
+       var ev = document.createEvent("MouseEvents");
+       ev.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+       obj.dispatchEvent(ev);
+    },
+    exportRaw(name, data) {
+         var urlObject = window.URL || window.webkitURL || window;
+         var export_blob = new Blob([data]);
+         var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+         save_link.href = urlObject.createObjectURL(export_blob);
+         save_link.download = name;
+         this.fakeClick(save_link);
+    },
+    //分页
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    handleSizeChange(val) {
+      this.params.per_page = val;
+      this.getList();
+    },
+    handleCurrentChange(val) {
+      this.params.current_page = val;
+      this.getList();
+    },
+    
+    getList() {
+      const params = {
+        per_page: this.params.per_page,
+        current_page: this.params.current_page,
+        searchWords: this.searchWords,
+      };
+      getBatchNoList(this.params).then((response) => {
+        if (response.data.code == 1000) {
+          this.tableData = response.data.data.data;
+          this.params.totle = response.data.data.total; //分页
+        } else {
+          this.$message.error(response.data.message)
+        }
+      });
+    },
+
+    //导出
+    handleClick(row) {
+      this.$set(row, "remindLoading", true);
+      this.exportParams.batchId = row.id;
+      this.requestBatchData(() => {
+        this.$set(row, "remindLoading", false);
+        this.exportWithData(row, this.exportDdata);
+      },this.exportParams);
+    },
+    // 请求数据
+    requestBatchData(callBack,exportParams) {
+      batchExportData(exportParams).then((response) => {
+        let responData = response.data;
+        this.exportParams.per_page = responData.data.per_page;
+        this.exportParams.last_page = responData.data.last_page;
+        this.exportParams.current_page = responData.data.current_page;
+        this.exportParams.total = responData.data.total;
+     
+        if (responData.code == 1000 && responData.data.data && responData.data.data.length >0) {
+          this.exportDdata.push(responData.data.data);
+          this.exportParams.current_page += 1;
+          this.requestBatchData(callBack,this.exportParams);
+        } else {
+          if (callBack) callBack();
+          return null;
+        }
+      });
+    },
+    // 导出excel 表格
+    exportWithData(row, arrayData) {
+      if (!row) return null;
+      if (!arrayData) return null;
+      if (arrayData && arrayData.length <= 0) return;
+      import("@/vendor/Export2Excel").then((excel) => {
+        const tHeader = [
+          "资源ID",
+          "批次编号",
+          "Url",
+          "广告主",
+          "品牌",
+          "产品字段",
+          "工程师状态",
+          "质检员状态",
+          "复核状态",
+          "组长状态",
+          "最终状态"
+        ];
+        const filterVal = [
+          "id",
+          "bCode",
+          "sourceUrl",
+          "adName",
+          "bName",
+          "keyword",
+          "engineerStatusText",
+          "qualityControlStatusText",
+          "reCheckStatusText",
+          "groupLeaderStatusText",
+          "stateText"
+        ];
+        let result = [];
+
+        arrayData.forEach((element) => {
+          element.forEach((row) => {
+            result.push(row)
+          });
+        });
+        const data = this.formatJson(filterVal, result);
+        let batchNo = row.bCode + "-" + row.groupCode + "-N" + row.id
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: batchNo,
+          autoWidth: true,
+          bookType: "xlsx",
+        });
+        
+      // 拼接SQL字符串
+      var str = "INSERT INTO `task_result` (`rf_id`,`batchNo`,`file_url`,`sponsor`,`brand`,`product`,`note`) VALUES ";
+      var str2 = "" ;
+      for ( var i = 0;i<result.length;i++) { 
+          // id值
+          let airuiRfId = result[i].airuiRfId 
+          // 产品批次号
+          let bCode = batchNo
+          // 图片
+          let sourceUrl = result[i].sourceUrl
+          // console.log(sourceUrl);
+          // 广告主
+          let adName = result[i].adName ? result[i].adName : ''
+          // 品牌
+          let bName = result[i].bName ? result[i].bName : ''
+          // 产品字段
+          let keyword = result[i].keyword ? result[i].keyword : ''
+          // 可以填入的字段 
+          let note = ''
+             if (result[i].engineerStatus == 3) {
+               note = " 放弃"
+             }else if (result[i].engineerStatus == 1) {
+               note = " 待确定"
+             }else {
+               note = " "
+             }
+          str2 += "(" + airuiRfId + ",'" + bCode + "','" + sourceUrl + "','" + adName + "','" + bName + "','" + keyword + "','" + note+"'),"
+        }
+         let exportContent = str + str2.substring(0 ,str2.length-1) + ";"
+         this.exportRaw(batchNo + '.sql',exportContent);
+    
+         window.location.reload()
+      });
+    },
+    formatJson(filterVal, exportDdata) {
+      return exportDdata.map((v) =>
+        filterVal.map((j) => {
+          if (j === "timestamp") {
+            return parseTime(v[j]);
+          } else {
+            return v[j];
+          }
+        })
+      );
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.msds-container {
+  .add-export-btns {
+    display: flex;
+    .upload {
+      margin: 0 10px;
+    }
+  }
+}
+</style>
+
+<style lang="scss">
+.add-dialog {
+  .el-dialog {
+    .el-dialog__body {
+      padding-top: 0;
+      padding-bottom: 15px;
+    }
+  }
+}
+
+.el-textarea {
+  .el-textarea__inner {
+    min-height: 85px !important;
+  }
+}
+.main {
+  width: 100%;
+  height: 520px;
+}
+.main-btn {
+  width: 110px;
+  margin: 10px;
+  float: left;
+}
+</style>

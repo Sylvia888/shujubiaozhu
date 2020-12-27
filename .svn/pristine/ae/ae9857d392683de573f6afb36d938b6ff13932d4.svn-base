@@ -1,45 +1,41 @@
 <template>
-  <!-- 工程师任务列表页 -->
+<!-- 质检员列表首页 -->
   <div class="msds-container view-container">
-    <el-table :data="tableData" style="width: 100%">
-      <el-table-column prop="id" label="id" width="80"></el-table-column>
-      <el-table-column prop="bCode" label="订单号" width="250">
+    <el-table
+      :data="tableData"
+      :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
+      border
+      style="width: 100%; text-align: center"
+    >
+      <el-table-column fixed prop="id" label="id" width="75">
       </el-table-column>
-      <el-table-column label="组编号" width="120">
-        <template slot-scope="scope">
-          {{ scope.row.groupCode + '-N' + scope.row.id }}
+       <el-table-column fixed prop="bCode" label="订单号" width="120">
+      </el-table-column>
+      <el-table-column fixed label="组编号" width="120">
+         <template slot-scope="scope">
+          {{ scope.row.groupCode + "-N" + scope.row.id}}
         </template>
       </el-table-column>
-      <el-table-column prop="batchTotalCount" label="批次总数量" width="130">
+      <el-table-column fixed prop="batchTotalCount" label="分配批次总数量" width="120">
       </el-table-column>
-      <el-table-column prop="surplusTotalCount" label="未标注" width="100">
+      <el-table-column fixed prop="batchEnHasDoneTotalCount" label="工程师已做数量" width="120">
       </el-table-column>
-      <el-table-column prop="userNotPassCount" label="未通过" width="120">
+      <el-table-column fixed prop="finishCount" label="完成数量" width="120">
       </el-table-column>
-      <el-table-column prop="reCheckTotalCount" label="待复核" width="120">
       </el-table-column>
-      <!-- 操作选项 -->
-      <el-table-column fixed="right" label="操作" width="220">
+      <el-table-column fixed prop="finishCount" label="待完成数量" width="120">
+      </el-table-column>
+      </el-table-column>
+      <el-table-column fixed prop="finishCount" label="待完成数量" width="120">
+      </el-table-column>
+      <el-table-column label="操作" width="120">
         <template slot-scope="scope">
-          <el-button @click="handleClick(scope.row)" type="text" size="mini"
-            >数据标注</el-button
-          >
-          <el-button
-            type="text"
-            size="mini"
-            @click="handleFailedData(scope.row)"
-            >未通过数据</el-button
-          >
-          <el-button
-            type="text"
-            size="mini"
-            @click="handleReCheckData(scope.row)"
-            >数据复核</el-button
+          <el-button @click="handleClick(scope.row)" type="text" size="small"
+            >数据质检</el-button
           >
         </template>
       </el-table-column>
     </el-table>
-    <!-- 分页 -->
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -55,9 +51,7 @@
 <script>
 import { mapGetters } from "vuex"
 import pagination from "@/components/Pagination"
-// 获取任务列表(工程师)
-import { getBatchNoList } from "../../api/engineer"
-
+import { getBatchNoList } from "../../api/sorter"
 import {
   fetchMsdsList,
   fetchChemicalsTypes,
@@ -72,7 +66,7 @@ import {
 } from "@/api/msds"
 
 export default {
-  name: "Engineer",
+  name: "Sorter",
   components: { pagination },
   data () {
     return {
@@ -97,51 +91,40 @@ export default {
     handleSizeChange (val) {
       this.params.per_page = val
       this.getList()
+      console.log(`每页 ${val} 条`)
     },
     handleCurrentChange (val) {
+      // this.params.total = val;
       this.params.current_page = val
       this.getList()
+      // console.log(`每页 ${val} 条`);
     },
+
     //数据标注跳转
     handleClick (row) {
-      this.$router.push({
-        path: "/Engineer/EngineerMainForm",
-        query: { num: row.batchTotalCount, batchId: row.id, row: row },
-      }) //页面跳转带参数
-    },
-    // 未通过数据
-    handleFailedData (row) {
       console.log(row.batchTotalCount)
       this.$router.push({
-        path: "/Engineer/EngineerFailedData",
+        path: "/QualityControl/SorterMainForm",
         query: { num: row.batchTotalCount, batchId: row.id, row: row },
       }) //页面跳转带参数
     },
-    // 数据复核
-    handleReCheckData (row) {
-      this.$router.push({
-        path: "/Engineer/EngineerRecheckData",
-        query: { num: row.batchTotalCount, batchId: row.id, row: row },
-      }) //页面跳转带参数
-    },
+
+    //列表加载
     getList () {
+      console.log(11111)
       let that = this
       const params = {
         per_page: this.params.per_page,
         current_page: this.params.current_page,
         searchWords: this.searchWords,
       }
-      // 获取任务列表(工程师)
-      getBatchNoList(this.params).then((response) => {
-        console.log(this.response)
+      getBatchNoList(that.params).then((response) => {
         if (response.data.code == 1000) {
           this.tableData = response.data.data.data
           this.params.totle = response.data.data.total //分页
         } else {
           this.menu = response.data.data
-          // console.log(this.menu)
         }
-        console.log(this.tableData)
       })
     },
   },
@@ -181,16 +164,6 @@ export default {
 .main-btn {
   width: 110px;
   margin: 10px;
-  float: left;
-}
-.btn-d {
-  width: 300px;
-  height: 90px;
-  margin: 0 auto;
-}
-.btn-dialog {
-  width: 150px;
-  height: 60px;
   float: left;
 }
 </style>

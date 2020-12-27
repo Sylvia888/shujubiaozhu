@@ -1,7 +1,6 @@
 import request from '../utils/request'
 
-// 获取任务列表(工程师)
-export function getBatchNoList (data) {
+export function getBatchNoList(data) {
   return request({
     url: '/EngineerOperation/getBatchNoList',
     method: 'post',
@@ -9,8 +8,8 @@ export function getBatchNoList (data) {
   })
 }
 
-// 数据标注（工程师）提交标注操作
-export function submitData (data) {
+// 提交数据
+export function submitData(data) {
   return request({
     url: '/EngineerOperation/labelSubmitOperate',
     method: 'post',
@@ -19,7 +18,7 @@ export function submitData (data) {
 }
 
 // 工程师加载标注数据
-export function labelLoadData (data) {
+export function labelLoadData(data) {
   return request({
     url: '/EngineerOperation/labelLoadData',
     method: 'post',
@@ -27,7 +26,7 @@ export function labelLoadData (data) {
   })
 }
 // 搜索广告主
-export function searchSponsorName (data) {
+export function searchSponsorName(data) {
   return request({
     url: '/EngineerOperation/loadSponsorData',
     method: 'post',
@@ -35,15 +34,15 @@ export function searchSponsorName (data) {
   })
 }
 // 搜索品牌
-export function searchBandsName (data) {
+export function searchBandsName(data) {
   return request({
     url: '/EngineerOperation/loadBandsData',
     method: 'post',
     data
-  })
-}
+  })  
+} 
 // 搜索产品字段
-export function searchProductFields (data) {
+export function searchProductFields(data) {
   return request({
     url: '/EngineerOperation/loadProductFieldsData',
     method: 'post',
@@ -52,15 +51,15 @@ export function searchProductFields (data) {
 }
 
 // 工程师加载未通过数据
-export function getFailedDataList (data) {
+export function getFailedDataList(data) {
   return request({
     url: '/EngineerOperation/getFailedDataList',
     method: 'post',
     data
   })
 }
-// 数据标注（工程师）获取复核数据
-export function getReCheckDataList (data) {
+// 加载复核数据
+export function getReCheckDataList(data) {
   return request({
     url: '/EngineerOperation/getReCheckDataList',
     method: 'post',
@@ -69,7 +68,7 @@ export function getReCheckDataList (data) {
 }
 
 // 工程师提交复核操作
-export function reCheckSubmitOperate (data) {
+export function reCheckSubmitOperate(data) {
   return request({
     url: '/EngineerOperation/reCheckSubmitOperate',
     method: 'post',
@@ -78,7 +77,7 @@ export function reCheckSubmitOperate (data) {
 }
 
 // 数据标注(工程师)通过品牌搜索广告主关联信息
-export function sponsorLinkageSearch (data) {
+export function sponsorLinkageSearch(data) {
   return request({
     url: '/AdvertResource/sponsorLinkageSearch',
     method: 'post',

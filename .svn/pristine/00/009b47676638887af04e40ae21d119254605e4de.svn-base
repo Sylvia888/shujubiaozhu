@@ -55,7 +55,6 @@
 <script>
 import { mapGetters } from "vuex"
 import pagination from "@/components/Pagination"
-// 获取任务列表(工程师)
 import { getBatchNoList } from "../../api/engineer"
 
 import {
@@ -109,15 +108,12 @@ export default {
         query: { num: row.batchTotalCount, batchId: row.id, row: row },
       }) //页面跳转带参数
     },
-    // 未通过数据
     handleFailedData (row) {
-      console.log(row.batchTotalCount)
       this.$router.push({
         path: "/Engineer/EngineerFailedData",
         query: { num: row.batchTotalCount, batchId: row.id, row: row },
       }) //页面跳转带参数
     },
-    // 数据复核
     handleReCheckData (row) {
       this.$router.push({
         path: "/Engineer/EngineerRecheckData",
@@ -131,7 +127,6 @@ export default {
         current_page: this.params.current_page,
         searchWords: this.searchWords,
       }
-      // 获取任务列表(工程师)
       getBatchNoList(this.params).then((response) => {
         console.log(this.response)
         if (response.data.code == 1000) {

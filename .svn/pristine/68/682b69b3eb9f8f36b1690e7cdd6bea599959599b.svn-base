@@ -1,25 +1,31 @@
 <template>
-  <!-- 工程师任务列表页 -->
   <div class="msds-container view-container">
     <el-table :data="tableData" style="width: 100%">
-      <el-table-column prop="id" label="id" width="80"></el-table-column>
-      <el-table-column prop="bCode" label="订单号" width="250">
+      <el-table-column fixed prop="id" label="id" width="100"></el-table-column>
+      <el-table-column fixed prop="bCode" label="订单号" width="300">
       </el-table-column>
-      <el-table-column label="组编号" width="120">
+      <el-table-column label="组编号" width="200">
         <template slot-scope="scope">
           {{ scope.row.groupCode + '-N' + scope.row.id }}
         </template>
       </el-table-column>
-      <el-table-column prop="batchTotalCount" label="批次总数量" width="130">
+      <el-table-column label="未标注" width="200">
+        <template slot-scope="scope">
+          {{ scope.row.surplusTotalCount }}
+        </template>
       </el-table-column>
-      <el-table-column prop="surplusTotalCount" label="未标注" width="100">
+      <el-table-column label="未通过" width="200">
+        <template slot-scope="scope">
+          {{ scope.row.userNotPassCount }}
+        </template>
       </el-table-column>
-      <el-table-column prop="userNotPassCount" label="未通过" width="120">
-      </el-table-column>
-      <el-table-column prop="reCheckTotalCount" label="待复核" width="120">
+      <el-table-column label="待复核" width="200">
+        <template slot-scope="scope">
+          {{ scope.row.reCheckTotalCount }}
+        </template>
       </el-table-column>
       <!-- 操作选项 -->
-      <el-table-column fixed="right" label="操作" width="220">
+      <el-table-column fixed="right" label="操作" width="240">
         <template slot-scope="scope">
           <el-button @click="handleClick(scope.row)" type="text" size="mini"
             >数据标注</el-button
@@ -55,7 +61,6 @@
 <script>
 import { mapGetters } from "vuex"
 import pagination from "@/components/Pagination"
-// 获取任务列表(工程师)
 import { getBatchNoList } from "../../api/engineer"
 
 import {
@@ -109,15 +114,12 @@ export default {
         query: { num: row.batchTotalCount, batchId: row.id, row: row },
       }) //页面跳转带参数
     },
-    // 未通过数据
     handleFailedData (row) {
-      console.log(row.batchTotalCount)
       this.$router.push({
         path: "/Engineer/EngineerFailedData",
         query: { num: row.batchTotalCount, batchId: row.id, row: row },
       }) //页面跳转带参数
     },
-    // 数据复核
     handleReCheckData (row) {
       this.$router.push({
         path: "/Engineer/EngineerRecheckData",
@@ -131,7 +133,6 @@ export default {
         current_page: this.params.current_page,
         searchWords: this.searchWords,
       }
-      // 获取任务列表(工程师)
       getBatchNoList(this.params).then((response) => {
         console.log(this.response)
         if (response.data.code == 1000) {

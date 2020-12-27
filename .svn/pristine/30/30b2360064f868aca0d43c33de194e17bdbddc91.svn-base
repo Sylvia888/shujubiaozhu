@@ -2,9 +2,9 @@
   <el-container>
     <el-header>
       <el-row type="flex" class="header">
-        总数量<span>{{ tableData ? tableData.batchTotalCount : 0 }}</span
-        >我的标注数量<span>{{ tableData ? tableData.iMarkedCount : 0 }}</span
-        >我的错误数<span>{{ tableData ? tableData.markedErrorCount : 0 }}</span>
+        一共<span>{{ this.$route.query.num }}</span
+        >张/已做<span>{{ tableData && tableData.finishCount }}</span
+        >张
       </el-row>
     </el-header>
     <el-main>
@@ -25,30 +25,25 @@
               <el-form>
                 <el-form-item label="广告主">
                   <el-input
-                    v-model="tableData && tableData.sponsorText"
+                    v-model="tableData.sponsorText"
                     :disabled="true"
                   ></el-input>
                 </el-form-item>
                 <el-form-item label="品牌">
                   <el-input
-                    v-model="tableData && tableData.brandText"
+                    v-model="tableData.brandText"
                     :disabled="true"
                   ></el-input>
                 </el-form-item>
                 <el-form-item label="产品字段">
                   <el-input
-                    v-model="tableData && tableData.productFieldText"
+                    v-model="tableData.productFieldText"
                     :disabled="true"
                   ></el-input>
                 </el-form-item>
                 <el-form-item>
                   <div class="main-bottm">
-                    <el-button
-                      type="primary"
-                      size="mini"
-                      @click="nextData"
-                      round
-                      >下一个</el-button
+                    <el-button type="primary" size="mini" @click="nextData" round >下一个</el-button
                     >
                   </div>
                 </el-form-item>
@@ -62,43 +57,43 @@
 </template>
 
 <script>
-import "viewerjs/dist/viewer.css"
-import axios from "axios"
-import { mapGetters } from "vuex"
-import pagination from "@/components/Pagination"
-import { getFailedDataList } from "../../api/engineer"
+import "viewerjs/dist/viewer.css";
+import axios from "axios";
+import { mapGetters } from "vuex";
+import pagination from "@/components/Pagination";
+import { getFailedDataList } from "../../api/engineer";
 
 export default {
   name: "EngineerFailedData",
   components: { pagination },
-  data () {
+  data() {
     return {
       tableData: {
-        sponsorText: '',
-        brandText: '',
-        productFieldText: '',
-        sourceUrl: ''
+        sponsorText:'',
+        brandText:'',
+        productFieldText:'',
+        sourceUrl:''
       },
-      batchId: 0,
-      current_page: 1,
-    }
+      batchId:0,
+      current_page:1,
+    };
   },
-  created () {
+  created() {
     this.batchId = this.$route.query.batchId
-    this.nextData()
+    this.nextData();
   },
   methods: {
     //加载数据
-    nextData () {
-      getFailedDataList({ current_page: this.current_page, batchId: this.batchId }).then((response) => {
-        console.log(response)
+    nextData() {
+      getFailedDataList({current_page:this.current_page,batchId:this.batchId}).then((response) => {
         if (response.data.code == 1000) {
-          this.tableData = response.data.data.data[0]
+          this.tableData = response.data.data.data[0];
           this.current_page += 1
+          console.log(this.tableData);
         } else {
-          this.$message.error(response.data.message)
+          this.$message.error(response.data.message);
         }
-      })
+      });
     },
   },
 };
@@ -109,7 +104,7 @@ export default {
 .el-footer {
   background-color: #b3c0d1;
   color: #333;
-  font-size: 25px;
+  font-size:25px;
   text-align: center;
   line-height: 60px;
 }
