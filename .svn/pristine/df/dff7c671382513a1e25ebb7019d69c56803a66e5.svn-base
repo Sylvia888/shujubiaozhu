@@ -3,7 +3,6 @@
     <!-- 头部区域 -->
     <el-header>
       <meta name="referrer" content="no-referrer"/>
-      <el-button type="primary" @click="callBack()">返回</el-button>
       <el-row type="flex" class="header">
         应抽检<span>{{ tableData && tableData.shouldCheckCount }}</span
         >已抽检<span>{{ tableData && tableData.useCheckCount }}</span
@@ -191,9 +190,6 @@ export default {
     this.enterKeyupDestroyed()
   },
   methods: {
-    callBack() {
-      this.$router.go(-1);
-    },
     getnull() {
       this.formMess.sponsorName = null
       this.formMess.bandName = null

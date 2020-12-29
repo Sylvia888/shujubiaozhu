@@ -20,10 +20,6 @@ import GroupLeaderSorter from '../views/HeadMan/Sorter/index'
 import GroupLeaderSortermainform from '../views/HeadMan/Sorter/mainform'
 import GroupLeaderSpotCheck from '../views/HeadMan/SpotCheck/index'
 import GroupLeaderSpotCheckmainform from '../views/HeadMan/SpotCheck/mainform'
-//组长 广告，品牌，产品管理
-import HeadmanAdvertising from '@/views/HeadMan/Advertising'
-import HeadmanBrand from '@/views/HeadMan/brand'
-import HeadmanProduct from '@/views/HeadMan/product'
 import GroupLeaderResource from '../views/HeadMan/resource/index'
 
 Vue.use(VueRouter)
@@ -193,6 +189,7 @@ const Router = new VueRouter({
             title: "工程师报表",
             icon: "dashboard"
           }
+
         },
         {
           path: "GroupLeaderEngineermainform",
@@ -212,7 +209,7 @@ const Router = new VueRouter({
           hidden: localStorage.getItem("roleCode") != 'GroupLeader' ? true : false,
           meta: {
             title: "质检员报表",
-            icon: "el-icon-picture-outline-round"
+            icon: "dashboard"
           }
         },
         {
@@ -233,7 +230,7 @@ const Router = new VueRouter({
           hidden: localStorage.getItem("roleCode") != 'GroupLeader' ? true : false,
           meta: {
             title: "数据抽检",
-            icon: "el-icon-bell"
+            icon: "dashboard"
           }
         },
         {
@@ -247,34 +244,13 @@ const Router = new VueRouter({
           }
         },
         {
-          path: "HeadmanAdvertising",
-          name: "HeadmanAdvertising",
-          component: HeadmanAdvertising,
-          hidden: localStorage.getItem("roleCode") != 'GroupLeader' ? true : false,
+          path: "GroupLeaderSpotCheckmainform",
+          name: "GroupLeaderSpotCheckmainform",
+          component: GroupLeaderSpotCheckmainform,
+          hidden: true,
           meta: {
-            title: "广告主管理",
-            icon: "dashboard"
-          }
-        },
-        {
-          path: "HeadmanBrand",
-          name: "HeadmanBrand",
-          component: HeadmanBrand,
-          hidden: localStorage.getItem("roleCode") != 'GroupLeader' ? true : false,
-          meta: {
-            title: "品牌管理",
-            icon: "el-icon-s-flag",
-            keepAlive: true
-          }
-        },
-        {
-          path: "HeadmanProduct",
-          name: "HeadmanProduct",
-          component: HeadmanProduct,
-          hidden: localStorage.getItem("roleCode") != 'GroupLeader' ? true : false,
-          meta: {
-            title: "产品字段管理",
-            icon: "el-icon-s-promotion",
+            title: "操作面板",
+            icon: "dashboard",
             keepAlive: true
           }
         },
