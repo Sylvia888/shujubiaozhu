@@ -16,14 +16,7 @@ export function submitData (data) {
     data
   })
 }
-// 组长打回整个批次数据
-export function returnBatch (data) {
-  return request({
-    url: 'GroupLeaderOperation/returnBatch',
-    method: 'post',
-    data
-  })
-}
+
 // 组长快速定位数据
 export function quickLocationData (data) {
   return request({
@@ -40,16 +33,6 @@ export function submitChangeData (data) {
     data
   })
 }
-
-// 组长提交抽签状态
-export function submitDrawComplete (data) {
-  return request({
-    url: 'GroupLeaderOperation/submitDrawComplete',
-    method: 'post',
-    data
-  })
-}
-
 // 组长获取广告主列表
 export function advertisingList (data) {
   return request({

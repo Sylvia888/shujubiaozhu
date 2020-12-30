@@ -43,19 +43,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <!-- 分页 -->
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="queryInfo.pagesize"
-        :page-sizes="[5, 10, 15, 20]"
-        :page-size="queryInfo.pagesize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="this.total"
-      >
-      </el-pagination>
       <!-- 单个修改的弹出框 -->
-      <el-dialog title="修改单个广告名称" :visible.sync="dialogOneTableVisible">
+      <el-dialog title="修改单个广告名称" :visible.sync="dialogTableVisible">
         <el-form>
           <el-input
             v-model="currentRow && currentRow.adName"
@@ -63,7 +52,7 @@
           ></el-input>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="clearOneDialog()">取 消</el-button>
+          <el-button @click="clearDialog()">取 消</el-button>
           <el-button type="primary" @click="confirmSubmitAdvertsing()"
             >确 定</el-button
           >
@@ -84,6 +73,17 @@
           >
         </div>
       </el-dialog>
+      <!-- 分页 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="queryInfo.pagesize"
+        :page-sizes="[5, 10, 15, 20]"
+        :page-size="queryInfo.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="this.total"
+      >
+      </el-pagination>
     </el-card>
   </div>
 </template>
@@ -96,7 +96,7 @@ import {
 } from '@/api/GroupLeader'
 export default {
   name: 'HeadmanAdvertising',
-  data () {
+  data() {
     return {
       // 定义查询参数对象
       queryInfo: {
@@ -114,18 +114,15 @@ export default {
       // 总条数条数
       total: 0,
       currentRow: null,
-      // 复选
       dialogTableVisible: false,
-      // 单选
-      dialogOneTableVisible: false
     }
   },
-  created () {
+  created() {
     this.getAdvertisingList()
   },
   methods: {
     // 根据分页获取广告主列表
-    async getAdvertisingList () {
+    async getAdvertisingList() {
       const { data } = await advertisingList(this.queryInfo)
       if (data.code !== 1000) {
         return this.$message.error('获取列表失败')
@@ -135,45 +132,44 @@ export default {
     },
 
     // 处理分页页码大小
-    handleSizeChange (newsize) {
+    handleSizeChange(newsize) {
       this.queryInfo.pagesize = newsize
       this.getAdvertisingList()
     },
     // 处理当前页变动时候
-    handleCurrentChange (newpage) {
+    handleCurrentChange(newpage) {
       this.queryInfo.pagenum = newpage
       this.getAdvertisingList()
     },
     // 单个修改
-    amend (row) {
+    amend(row) {
       this.currentRow = row
-      this.dialogOneTableVisible = true
+      this.dialogTableVisible = true
     },
-    async confirmSubmitAdvertsing () {
+    async confirmSubmitAdvertsing() {
       const { data } = await advertisingState({
         id: this.currentRow.id,
         sponsorName: this.currentRow.adName,
       })
       if (data.code == 1000) {
         this.currentRow = null
-        this.dialogOneTableVisible = false
-        this.$message.success(data.message)
+        this.dialogTableVisible = false
         this.getAdvertisingList()
       } else {
         this.currentRow = null
-        this.dialogOneTableVisible = false
+        this.dialogTableVisible = false
       }
     },
-    clearOneDialog () {
+    clearDialog() {
       this.currentRow = null
-      this.dialogOneTableVisible = false
+      this.dialogTableVisible = false
       this.batSponsorName = null
     },
     // 全部修改
-    allAmend (rows) {
+    allAmend(rows) {
       this.dialogTableVisible = true
     },
-    async confirmSubmitAllAdvertsing () {
+    async confirmSubmitAllAdvertsing() {
       if (this.idItems.length <= 0) {
         this.$message.error('请先选择广告主')
         return
@@ -191,21 +187,16 @@ export default {
       }
       this.$message.error(data.message)
     },
-    tableSelectall (items) {
+     tableSelectall(items) {
       items.forEach((item) => {
         this.idItems.push(item.id)
       })
     },
-    tableSelectChange (selection) {
+    tableSelectChange(selection) {
       this.idItems = []
       selection.forEach((item) => {
         this.idItems.push(item.id)
       })
-    },
-    clearDialog () {
-      this.currentRow = null
-      this.dialogTableVisible = false
-      this.batfieldName = null
     },
   },
 }

@@ -59,119 +59,102 @@
       :total="params.totle"
     >
     </el-pagination>
-    <!-- 弹出层 -->
-    <el-dialog title="详情" :visible.sync="dialogFormVisible" width="80%">
-      <el-container>
-        <el-aside width="450px" class="aside">
-          <el-form>
-            <el-image
-              class="avatar"
-              :src="dialogTableData && dialogTableData.sourceUrl"
-              :preview-src-list="[dialogTableData && dialogTableData.sourceUrl]"
+    <el-dialog title="详情" :visible.sync="dialogFormVisible">
+      <el-form>
+        <el-form-item label="">
+          <el-image
+            class="avatar"
+            :src="dialogTableData && dialogTableData.sourceUrl"
+            :preview-src-list="[dialogTableData && dialogTableData.sourceUrl]"
+          >
+          </el-image>
+        </el-form-item>
+        <el-form-item label="活动区域">
+          <el-col :span="7">
+            <el-input
+              class="inline-input"
+              v-model="dialogFormMess.sponsorName"
+              placeholder="广告主"
+              :trigger-on-focus="true"
+              clearable
             >
-            </el-image>
-          </el-form>
-        </el-aside>
-        <el-main>
-          <el-row :gutter="20">
-            <el-col :span="7"
-              ><div class="grid-content bg-purple">
-                <el-input
-                  class="inline-input"
-                  v-model="dialogFormMess.sponsorName"
-                  placeholder="广告主"
-                  :trigger-on-focus="true"
-                  clearable
-                >
-                </el-input>
-                <div class="dd">
-                  <select multiple @change="dialogSponsorOnChageValue">
-                    <option v-for="(item, i) in dialogSelectItems" :value="i">
-                      {{ item.adName }}
-                    </option>
-                  </select>
-                </div>
-              </div></el-col
+            </el-input>
+            <div class="dd">
+              <select multiple @change="dialogSponsorOnChageValue">
+                <option v-for="(item, i) in dialogSelectItems" :value="i">
+                  {{ item.adName }}
+                </option>
+              </select>
+            </div>
+          </el-col>
+          <!-- 品牌 -->
+          <el-col :span="7">
+            <el-input
+              class="inline-input"
+              v-model="dialogFormMess.bandName"
+              placeholder="请输入品牌搜索"
+              :trigger-on-focus="true"
+              ref="brandSearchInput"
+              clearable
+              @input="dialogSearchOnChange"
             >
-            <el-col :span="7"
-              ><div class="grid-content bg-purple">
-                <el-input
-                  class="inline-input"
-                  v-model="dialogFormMess.bandName"
-                  placeholder="请输入品牌搜索"
-                  :trigger-on-focus="true"
-                  ref="brandSearchInput"
-                  clearable
-                  @input="dialogSearchOnChange"
-                >
-                </el-input>
-                <div class="dd">
-                  <select
-                    multiple
-                    v-if="dialogSelectBrandItems"
-                    @change="dialogBrandOnChageValue"
-                  >
-                    <option
-                      v-for="(item, i) in dialogSelectBrandItems"
-                      :value="i"
-                    >
-                      {{ item.bName }}
-                    </option>
-                  </select>
-                </div>
-              </div></el-col
+            </el-input>
+            <div class="dd">
+              <select
+                multiple
+                v-if="dialogSelectBrandItems"
+                @change="dialogBrandOnChageValue"
+              >
+                <option v-for="(item, i) in dialogSelectBrandItems" :value="i">
+                  {{ item.bName }}
+                </option>
+              </select>
+            </div>
+          </el-col>
+          <!--产品字段 -->
+          <el-col :span="7">
+            <el-input
+              class="inline-input"
+              v-model="dialogFormMess.fieldName"
+              placeholder="产品字段"
+              :trigger-on-focus="true"
+              clearable
             >
-            <el-col :span="6"
-              ><div class="grid-content bg-purple">
-                <el-input
-                  class="inline-input"
-                  v-model="dialogFormMess.fieldName"
-                  placeholder="产品字段"
-                  :trigger-on-focus="true"
-                  clearable
-                >
-                </el-input>
-                <div class="dd">
-                  <select
-                    multiple
-                    v-if="dialogProductFieldItems"
-                    @change="dialogProductFieldOnChageValue"
-                  >
-                    <option
-                      v-for="(item, i) in dialogProductFieldItems"
-                      :value="i"
-                    >
-                      {{ item.keyword }}
-                    </option>
-                  </select>
-                </div>
-              </div></el-col
-            >
-          </el-row>
-          <!-- button区域 -->
-          <div class="buttonbox">
-            <el-button
-              type="success"
-              size="mini"
-              @keyup.enter="dialogOnSubmit"
-              @click="dialogOnSubmit"
-              round
-              >提交</el-button
-            >
-            <el-button type="primary" size="mini" @click="dialogOnSave" round
-              >通过</el-button
-            >
-            <el-button
-              type="danger"
-              size="mini"
-              @click="dialogOnUnconfirm"
-              round
-              >不通过</el-button
-            >
-            <!-- /button区域 -->
-          </div>
-        </el-main>
-      </el-container>
+            </el-input>
+            <div class="dd">
+              <select
+                multiple
+                v-if="dialogProductFieldItems"
+                @change="dialogProductFieldOnChageValue"
+              >
+                <option v-for="(item, i) in dialogProductFieldItems" :value="i">
+                  {{ item.keyword }}
+                </option>
+              </select>
+            </div>
+          </el-col>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <!-- button区域 -->
+        <div class="buttonbox">
+          <el-button
+            type="success"
+            size="mini"
+            @keyup.enter="dialogOnSubmit"
+            @click="dialogOnSubmit"
+            round
+            >提交</el-button
+          >
+          <el-button type="primary" size="mini" @click="dialogOnSave" round
+            >通过</el-button
+          >
+          <el-button type="danger" size="mini" @click="dialogOnUnconfirm" round
+            >不通过</el-button
+          >
+          <!-- /button区域 -->
+        </div>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -189,7 +172,7 @@ import { sponsorLinkageSearch } from '../../../api/engineer'
 export default {
   name: 'GroupLeaderResource',
   components: { pagination },
-  data () {
+  data() {
     return {
       dialogFormMess: {
         arId: '',
@@ -215,23 +198,22 @@ export default {
       dialogFormVisible: false,
     }
   },
-  created () {
+  created() {
     this.getList()
   },
-  mounted () {
-    this.enterKeyup()
-  },
-  destroyed () {
-    this.enterKeyupDestroyed()
-  },
-
   methods: {
-    dialogSearchOnChange (e) {
+    mounted() {
+      this.$refs.brandSearchInput.$refs.input.focus()
+      this.enterKeyup()
+    },
+    destroyed() {
+      this.enterKeyupDestroyed()
+    },
+    dialogSearchOnChange(e) {
       this.dialogSearchEngineer()
-
     },
     // 广告主
-    dialogSponsorOnChageValue (e) {
+    dialogSponsorOnChageValue(e) {
       let idx = e.target.value
       this.dialogSelectSponsorIdx = idx
       this.dialogFormMess.sponsorName = this.dialogSelectItems[idx].adName
@@ -245,7 +227,7 @@ export default {
       this.dialogSelectBrandIdx = 0
     },
     // 品牌
-    dialogBrandOnChageValue (e) {
+    dialogBrandOnChageValue(e) {
       let idx = e.target.value
       this.dialogFormMess.bandName = this.dialogSelectBrandItems[idx].bName
       this.dialogFormMess.sponsorName = this.dialogSelectItems[
@@ -254,7 +236,7 @@ export default {
       this.dialogSelectBrandIdx = idx
     },
     // 产品字段
-    dialogProductFieldOnChageValue (e) {
+    dialogProductFieldOnChageValue(e) {
       let idx = e.target.value
       this.dialogFormMess.fieldName = this.dialogProductFieldItems[idx].keyword
       this.dialogFormMess.sponsorName = this.dialogSelectItems[
@@ -265,7 +247,7 @@ export default {
       ].bName
     },
     // 点击搜索
-    async dialogSearchEngineer () {
+    async dialogSearchEngineer() {
       const { data } = await sponsorLinkageSearch({
         searchWords: this.dialogFormMess.bandName,
       })
@@ -280,13 +262,13 @@ export default {
       }
     },
     // 隐藏对话框并刷新数据
-    hiddenDialogRef () {
-      this.dialogFormVisible = false
-      this.getnull()
-      this.getList()
+    hiddenDialogRef(){
+ this.dialogFormVisible = false
+          this.getnull()
+          this.getList()
     },
     // 提交
-    dialogOnSubmit () {
+    dialogOnSubmit() {
       submitChangeData(this.dialogFormMess).then((response) => {
         if (response.data.code == 1000) {
           this.hiddenDialogRef()
@@ -297,7 +279,7 @@ export default {
       })
     },
     // 不通过
-    dialogOnUnconfirm () {
+    dialogOnUnconfirm() {
       this.dialogFormMess.isPass = 1
       submitData(this.dialogFormMess).then((response) => {
         if (response.data.code == 1000) {
@@ -309,11 +291,11 @@ export default {
       })
     },
     // 通过
-    dialogOnSave () {
+    dialogOnSave() {
       this.dialogFormMess.isPass = 2
       submitData(this.dialogFormMess).then((response) => {
         if (response.data.code == 1000) {
-          this.hiddenDialogRef()
+         this.hiddenDialogRef()
         } else {
           this.$message.error(response.data.message)
           this.hiddenDialogRef()
@@ -321,27 +303,27 @@ export default {
       })
     },
     // 绑定enter事件
-    enterKeyup () {
+    enterKeyup() {
       document.addEventListener('keyup', this.enterKey)
     },
-    enterKeyupDestroyed () {
+    enterKeyupDestroyed() {
       document.removeEventListener('keyup', this.enterKey)
     },
-    enterKey (event) {
+    enterKey(event) {
       const componentName = this.$options.name
       if (componentName == 'GroupLeaderResource') {
         const code = event.keyCode
           ? event.keyCode
           : event.which
-            ? event.which
-            : event.charCode
+          ? event.which
+          : event.charCode
         if (code == 13) {
           this.onSubmit()
         }
       }
     },
     //列表加载
-    getList () {
+    getList() {
       const params = {
         per_page: this.params.per_page,
         current_page: this.params.current_page,
@@ -355,30 +337,28 @@ export default {
       })
     },
     //分页
-    handleSelectionChange (val) {
+    handleSelectionChange(val) {
       this.multipleSelection = val
     },
-    handleSizeChange (val) {
+    handleSizeChange(val) {
       this.params.per_page = val
       this.getList()
     },
-    handleCurrentChange (val) {
+    handleCurrentChange(val) {
       this.params.current_page = val
       this.getList()
     },
-    // 查看详情
-    viewDetils (row) {
+    viewDetils(row) {
       this.dialogTableData = row
       this.dialogFormVisible = true
       this.dialogFormMess.arId = this.dialogTableData.id
       this.dialogFormMess.bandName = this.dialogTableData.bName
       this.dialogFormMess.fieldName = this.dialogTableData.keyword
       this.dialogFormMess.sponsorName = this.dialogTableData.adName
-      console.log(this.$refs)
-      // this.$refs.brandSearchInput.input.focus()
+
       this.dialogSearchEngineer()
     },
-    getnull () {
+    getnull() {
       this.dialogFormMess.sponsorName = null
       this.dialogFormMess.bandName = null
       this.dialogFormMess.fieldName = null
@@ -441,24 +421,5 @@ export default {
 .talbeImage {
   width: 100px;
   height: 100px;
-}
-// 弹出框
-.inline-input {
-  width: 180px;
-  margin-bottom: 10px;
-}
-.dd {
-  select {
-    width: 180px;
-    height: 300px;
-    margin-bottom: 10px;
-  }
-}
-.el-col-7 {
-  width: 33.16667%;
-}
-.el-button--mini,
-.el-button--mini.is-round {
-  padding: 11px 70px;
 }
 </style>

@@ -1,0 +1,134 @@
+
+<template>
+  <!-- 组长产品字段管理页 -->
+  <div>
+    <el-card class="box-card">
+      <el-input
+        style="width: 500px"
+        v-model="queryInfo.searchWords"
+        placeholder="请输入内容"
+        clearable
+      ></el-input>
+      <el-button type="primary" icon="el-icon-search" @click="getProductList"
+        >搜索</el-button
+      >
+      <el-table :data="tableData" border style="width: 100%">
+        <el-table-column prop="id" label="ID" width="150"> </el-table-column>
+        <el-table-column prop="keyword" label="产品字段" width="120">
+        </el-table-column>
+        <el-table-column prop="useNumber" label="用户数量" width="120">
+        </el-table-column>
+        <el-table-column label="操作" width="180">
+          <template slot-scope="scope">
+            <el-button
+              size="small"
+              type="danger"
+              round
+              @click="amend(scope.row)"
+              >修改</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-dialog title="修改品牌名称" :visible.sync="dialogTableVisible">
+        <el-form>
+          <el-input
+            v-model="currentRow && currentRow.keyword"
+            autocomplete="off"
+          ></el-input>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="clearDialog()">取 消</el-button>
+          <el-button type="primary" @click="confirmSubmitAdvertsing()"
+            >确 定</el-button
+          >
+        </div>
+      </el-dialog>
+      <!-- 分页 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="queryInfo.pagesize"
+        :page-sizes="[5, 10, 15, 20]"
+        :page-size="queryInfo.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      >
+      </el-pagination>
+    </el-card>
+  </div>
+</template>
+
+<script>
+import { ProductList, productState } from "@/api/GroupLeader"
+export default {
+  name: "HeadmanProduct",
+  data () {
+    return {
+      // 定义查询参数对象
+      queryInfo: {
+        id: "",
+        searchWords: '',
+        // 当前页码
+        current_page: 1,
+        // 	分页大小
+        per_page: 10
+      },
+      // 定义广告主列表
+      tableData: [],
+      // 总条数条数
+      total: 0,
+      currentRow: null,
+      dialogTableVisible: false
+    }
+  },
+  created () {
+    this.getProductList()
+  },
+  methods: {
+    // 根据分页获取广告主列表
+    async getProductList () {
+      const { data } = await ProductList(this.queryInfo)
+      if (data.code !== 1000) {
+        return this.$message.error('获取列表失败')
+      }
+      this.tableData = data.data.data
+      this.total = data.data.total
+    },
+
+    // 处理分页页码大小
+    handleSizeChange (newsize) {
+      this.queryInfo.pagesize = newsize
+      this.getBrandList()
+    },
+    // 处理当前页变动时候
+    handleCurrentChange (newpage) {
+      this.queryInfo.pagenum = newpage
+      this.getBrandList()
+    },
+    // 修改
+    amend (row) {
+      this.currentRow = row
+      this.dialogTableVisible = true
+    },
+    async confirmSubmitAdvertsing () {
+      const { data } = await productState({ id: this.currentRow.id, sponsorId: this.currentRow.sponsorId, fieldName: this.currentRow.keyword })
+      if (data.code == 1000) {
+        this.currentRow = null
+        this.dialogTableVisible = false
+        this.getProductList()
+      } else {
+        this.currentRow = null
+        this.dialogTableVisible = false
+      }
+    },
+    clearDialog () {
+      this.currentRow = null
+      this.dialogTableVisible = false
+    }
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+</style>

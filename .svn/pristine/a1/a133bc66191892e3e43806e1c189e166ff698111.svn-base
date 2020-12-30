@@ -213,7 +213,7 @@ const Router = new VueRouter({
           hidden: localStorage.getItem("roleCode") != 'GroupLeader' ? true : false,
           meta: {
             title: "工程师报表",
-            icon: "el-icon-s-marketing"
+            icon: "dashboard"
           }
         },
         {
@@ -237,7 +237,17 @@ const Router = new VueRouter({
             icon: "el-icon-picture-outline-round"
           }
         },
-
+        {
+          path: "GroupLeaderSortermainform",
+          name: "GroupLeaderSortermainform",
+          component: GroupLeaderSortermainform,
+          hidden: true,
+          meta: {
+            title: "操作面板",
+            icon: "dashboard",
+            keepAlive: true
+          }
+        },
         {
           path: "GroupLeaderSpotCheck",
           name: "GroupLeaderSpotCheck",
@@ -247,14 +257,26 @@ const Router = new VueRouter({
             title: "数据抽检",
             icon: "el-icon-bell"
           }
-        }, {
+        },
+        {
+          path: "GroupLeaderSpotCheckmainform",
+          name: "GroupLeaderSpotCheckmainform",
+          component: GroupLeaderSpotCheckmainform,
+          hidden: true,
+          meta: {
+            title: "操作面板",
+            icon: "dashboard",
+            keepAlive: true
+          }
+        },
+        {
           path: "GroupLeaderResource",
           name: "GroupLeaderResource",
           component: GroupLeaderResource,
           hidden: localStorage.getItem("roleCode") != 'GroupLeader' ? true : false,
           meta: {
             title: "资源管理",
-            icon: "el-icon-s-management"
+            icon: "dashboard"
           }
         },
         {

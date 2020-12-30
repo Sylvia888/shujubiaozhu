@@ -3,8 +3,6 @@ import VueRouter from "vue-router"
 
 import Layout from "@/layout"
 import Login from '../views/login/index.vue'
-import ChangePwd from '../views/login/ChangePwd.vue'
-
 import SuperAdmin from '../views/sadmin/index.vue'
 import ImportTask from '../views/Task/index.vue'
 import ImportExport from '../views/Task/export'
@@ -29,8 +27,6 @@ import HeadmanProduct from '@/views/HeadMan/product'
 import GroupLeaderResource from '../views/HeadMan/resource/index'
 import SorterResource from '@/views/Sorter/Resources'
 
-
-
 Vue.use(VueRouter)
 
 const Router = new VueRouter({
@@ -44,10 +40,6 @@ const Router = new VueRouter({
     {
       path: '/login',
       component: Login,
-    },
-    {
-      path: '/changepwd',
-      component: ChangePwd,
     },
     {
       path: "/SuperAdmin",
@@ -247,7 +239,20 @@ const Router = new VueRouter({
             title: "数据抽检",
             icon: "el-icon-bell"
           }
-        }, {
+        }
+      ]
+    },
+    {
+      path: "/GroupLeader",
+      name: "GroupLeader",
+      component: Layout,
+      hidden: localStorage.getItem("roleCode") != 'GroupLeader' ? true : false,
+      meta: {
+        title: "管理列表",
+        icon: "dashboard"
+      },
+      children: [
+        {
           path: "GroupLeaderResource",
           name: "GroupLeaderResource",
           component: GroupLeaderResource,

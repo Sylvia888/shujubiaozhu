@@ -22,8 +22,8 @@
         :data="tableData"
         border
         style="width: 100%"
+        @select="tableSelect"
         @select-all="tableSelectall"
-        @selection-change="tableSelectChange"
       >
         <el-table-column type="selection" width="55"> </el-table-column>
         <el-table-column prop="id" label="ID" width="150"> </el-table-column>
@@ -31,18 +31,44 @@
         </el-table-column>
         <el-table-column prop="useNumber" label="使用次数" width="120">
         </el-table-column>
-        <el-table-column label="操作" width="150">
+        <el-table-column label="操作" width="180">
           <template slot-scope="scope">
-            <el-button
-              size="small"
-              type="danger"
-              round
-              @click="amend(scope.row)"
+            <el-button size="mini" type="danger" @click="amend(scope.row)"
               >修改</el-button
             >
           </template>
         </el-table-column>
       </el-table>
+      <!-- 单个修改的弹出框 -->
+      <el-dialog title="修改单个广告名称" :visible.sync="dialogTableVisible">
+        <el-form>
+          <el-input
+            v-model="currentRow && currentRow.adName"
+            autocomplete="off"
+          ></el-input>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="clearDialog()">取 消</el-button>
+          <el-button type="primary" @click="confirmSubmitAdvertsing()"
+            >确 定</el-button
+          >
+        </div>
+      </el-dialog>
+      <!-- 修改全部广告名称的弹出框 -->
+      <el-dialog title="修改全部广告名称" :visible.sync="dialogTableVisible">
+        <el-form>
+          <el-input
+            v-model="currentRow && currentRow.adName"
+            placeholder="请输入内容"
+          ></el-input>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="clearDialog()">取 消</el-button>
+          <el-button type="primary" @click="confirmSubmitAllAdvertsing()"
+            >确 定</el-button
+          >
+        </div>
+      </el-dialog>
       <!-- 分页 -->
       <el-pagination
         @size-change="handleSizeChange"
@@ -54,46 +80,12 @@
         :total="this.total"
       >
       </el-pagination>
-      <!-- 单个修改的弹出框 -->
-      <el-dialog title="修改单个广告名称" :visible.sync="dialogOneTableVisible">
-        <el-form>
-          <el-input
-            v-model="currentRow && currentRow.adName"
-            autocomplete="off"
-          ></el-input>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="clearOneDialog()">取 消</el-button>
-          <el-button type="primary" @click="confirmSubmitAdvertsing()"
-            >确 定</el-button
-          >
-        </div>
-      </el-dialog>
-      <!-- 修改全部广告名称的弹出框 -->
-      <el-dialog title="修改全部广告主名称" :visible.sync="dialogTableVisible">
-        <el-form>
-          <el-input
-            v-model="batSponsorName"
-            placeholder="请输入内容"
-          ></el-input>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="clearDialog()">取 消</el-button>
-          <el-button type="primary" @click="confirmSubmitAllAdvertsing()"
-            >确 定</el-button
-          >
-        </div>
-      </el-dialog>
     </el-card>
   </div>
 </template>
 
 <script>
-import {
-  advertisingList,
-  advertisingState,
-  advertisingAllChange,
-} from '@/api/GroupLeader'
+import { advertisingList, advertisingState, advertisingAllChange } from '@/api/GroupLeader'
 export default {
   name: 'HeadmanAdvertising',
   data () {
@@ -110,20 +102,22 @@ export default {
       // 定义广告主列表
       tableData: [],
       idItems: [],
-      batSponsorName: null,
       // 总条数条数
       total: 0,
       currentRow: null,
-      // 复选
       dialogTableVisible: false,
-      // 单选
-      dialogOneTableVisible: false
     }
   },
   created () {
     this.getAdvertisingList()
   },
   methods: {
+    tableSelect (row) {
+      console.log(row)
+    },
+    tableSelectall (items) {
+      console.log(items)
+    },
     // 根据分页获取广告主列表
     async getAdvertisingList () {
       const { data } = await advertisingList(this.queryInfo)
@@ -147,7 +141,7 @@ export default {
     // 单个修改
     amend (row) {
       this.currentRow = row
-      this.dialogOneTableVisible = true
+      this.dialogTableVisible = true
     },
     async confirmSubmitAdvertsing () {
       const { data } = await advertisingState({
@@ -156,57 +150,28 @@ export default {
       })
       if (data.code == 1000) {
         this.currentRow = null
-        this.dialogOneTableVisible = false
-        this.$message.success(data.message)
+        this.dialogTableVisible = false
         this.getAdvertisingList()
       } else {
         this.currentRow = null
-        this.dialogOneTableVisible = false
-      }
-    },
-    clearOneDialog () {
-      this.currentRow = null
-      this.dialogOneTableVisible = false
-      this.batSponsorName = null
-    },
-    // 全部修改
-    allAmend (rows) {
-      this.dialogTableVisible = true
-    },
-    async confirmSubmitAllAdvertsing () {
-      if (this.idItems.length <= 0) {
-        this.$message.error('请先选择广告主')
-        return
-      }
-
-      const { data } = await advertisingAllChange({
-        sponsorName: this.batSponsorName,
-        idItems: JSON.stringify(this.idItems),
-      })
-      if (data.code === 1000) {
-        this.$message.success(data.message)
-        this.getAdvertisingList()
         this.dialogTableVisible = false
-        return
       }
-      this.$message.error(data.message)
-    },
-    tableSelectall (items) {
-      items.forEach((item) => {
-        this.idItems.push(item.id)
-      })
-    },
-    tableSelectChange (selection) {
-      this.idItems = []
-      selection.forEach((item) => {
-        this.idItems.push(item.id)
-      })
     },
     clearDialog () {
       this.currentRow = null
       this.dialogTableVisible = false
-      this.batfieldName = null
+
     },
+    // 全部修改
+    allAmend (rows) {
+      console.log(111)
+      this.dialogTableVisible = true
+    },
+    // async confirmSubmitAdvertsing () {
+    //   const { data } = await advertisingAllChange ({
+
+    //   })
+    // }
   },
 }
 </script>

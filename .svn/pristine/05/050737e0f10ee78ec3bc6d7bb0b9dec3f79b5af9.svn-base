@@ -219,6 +219,7 @@ export default {
     this.getList()
   },
   mounted () {
+    this.$refs.brandSearchInput.$refs.input.focus()
     this.enterKeyup()
   },
   destroyed () {
@@ -228,7 +229,6 @@ export default {
   methods: {
     dialogSearchOnChange (e) {
       this.dialogSearchEngineer()
-
     },
     // 广告主
     dialogSponsorOnChageValue (e) {
@@ -366,7 +366,6 @@ export default {
       this.params.current_page = val
       this.getList()
     },
-    // 查看详情
     viewDetils (row) {
       this.dialogTableData = row
       this.dialogFormVisible = true
@@ -374,8 +373,7 @@ export default {
       this.dialogFormMess.bandName = this.dialogTableData.bName
       this.dialogFormMess.fieldName = this.dialogTableData.keyword
       this.dialogFormMess.sponsorName = this.dialogTableData.adName
-      console.log(this.$refs)
-      // this.$refs.brandSearchInput.input.focus()
+
       this.dialogSearchEngineer()
     },
     getnull () {
@@ -442,7 +440,6 @@ export default {
   width: 100px;
   height: 100px;
 }
-// 弹出框
 .inline-input {
   width: 180px;
   margin-bottom: 10px;
@@ -456,9 +453,5 @@ export default {
 }
 .el-col-7 {
   width: 33.16667%;
-}
-.el-button--mini,
-.el-button--mini.is-round {
-  padding: 11px 70px;
 }
 </style>

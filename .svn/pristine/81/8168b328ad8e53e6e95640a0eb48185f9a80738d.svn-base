@@ -9,24 +9,6 @@
       auto-complete="on"
       label-position="left"
     >
-      <!-- 用户名 -->
-      <el-form-item prop="userName">
-        <!-- icon图标 -->
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
-        <!-- 表单 -->
-        <el-input
-          onkeyup="value=value.replace(/[^\w\.\/]/ig,'')"
-          ref="userName"
-          v-model="loginForm.userName"
-          placeholder="请输入用户名"
-          name="userName"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-        />
-      </el-form-item>
       <!-- 密码 -->
       <el-form-item prop="password">
         <span class="svg-container">
@@ -35,9 +17,9 @@
         <el-input
           :key="passwordType"
           ref="password"
-          v-model="loginForm.password"
+          v-model="loginForm.oldPwd"
           :type="passwordType"
-          placeholder="请输入密码"
+          placeholder="请输入原始密码"
           name="password"
           tabindex="2"
           auto-complete="on"
@@ -51,7 +33,30 @@
           />
         </span>
       </el-form-item>
-
+      <!-- 新密码 -->
+      <el-form-item prop="password">
+        <span class="svg-container">
+          <svg-icon icon-class="password" />
+        </span>
+        <el-input
+          :key="passwordType"
+          ref="newPassword"
+          v-model="loginForm.newPwd"
+          :type="passwordType"
+          placeholder="请输入新密码"
+          name="newPassword"
+          tabindex="2"
+          auto-complete="on"
+          @keyup.enter.native="handleLogin"
+          onkeyup="value=value.replace(/[^\w\.\/]/ig,'')"
+        />
+        <!-- 点击显示密码图标 -->
+        <span class="show-pwd" @click="showPwd">
+          <svg-icon
+            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
+          />
+        </span>
+      </el-form-item>
       <el-form-item prop="loginPwd" style="display: none">
         <el-input ref="loginPwd" v-model="loginForm.loginPwd" />
       </el-form-item>
@@ -59,40 +64,39 @@
       <el-button
         :disabled="can"
         :loading="loading"
-        type="primary"
+        type="warning"
         style="width: 50%; margin-bottom: 30px; float: left"
-        @click.native.prevent="handleLogin"
-        >登录</el-button
+        @click.native.prevent="handleSubmitChange"
+        >提交</el-button
       >
-      <!-- 注册 -->
       <el-button
         :disabled="can"
         :loading="loading"
-        type="success"
+        type="primary"
         style="width: 50%; margin-bottom: 30px; float: left"
-        @click="handleregister"
-        >注册</el-button
+        @click.native.prevent="handleBack"
+        >返回</el-button
       >
     </el-form>
   </div>
 </template>
 <script>
-import md5 from "js-md5"
-import { login, register,changePwd } from "../../api/user"
-import { MessageBox } from "element-ui"
+import md5 from 'js-md5'
+import { changePwd } from '../../api/user'
+import { MessageBox } from 'element-ui'
 export default {
-  name: "Login",
-  data () {
+  name: 'Login',
+  data() {
     const validateuserName = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入用户名"))
+      if (value === '') {
+        callback(new Error('请输入用户名'))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length === 0) {
-        callback(new Error("请输入密码"))
+        callback(new Error('请输入密码'))
       } else {
         callback()
       }
@@ -102,23 +106,21 @@ export default {
       can: false,
       // 登陆表单的数据绑定对象
       loginForm: {
-        userName: "",
-        password: "",
-        loginPwd: "",
+        oldPwd: '',
+        newPwd: '',
       },
       // 表单验证规则对象
       loginFormRules: {
-        userName: [
-          { required: true, trigger: "blur", validator: validateuserName },
-          // { min: 3, max: 11, message: '请输入3 到 11 个的字符', trigger: 'blur' }
+        oldPwd: [
+          { required: true, trigger: 'blur', validator: validatePassword },
         ],
-        password: [
-          { required: true, trigger: "blur", validator: validatePassword },
-          // { min: 3, max: 11, message: '请输入 3 到 11个字符的密码', trigger: 'blur' }
+        newPwd: [
+          { required: true, trigger: 'blur', validator: validatePassword },
         ],
       },
+
       loading: false,
-      passwordType: "password",
+      passwordType: 'password',
       redirect: undefined,
     }
   },
@@ -131,74 +133,35 @@ export default {
     },
   },
   methods: {
-    showPwd () {
-      if (this.passwordType === "password") {
-        this.passwordType = ""
+    showPwd() {
+      if (this.passwordType === 'password') {
+        this.passwordType = ''
       } else {
-        this.passwordType = "password"
+        this.passwordType = 'password'
       }
       this.$nextTick(() => {
         this.$refs.password.focus()
       })
     },
-    handleLogin () {
+    // 修改密码
+    handleSubmitChange() {
       let that = this
       this.$refs.loginForm.validate((valid) => {
-        that.loginForm.loginPwd = md5(this.loginForm.password)
-        // alert(that.loginForm.loginPwd);
-        login(that.loginForm).then((response) => {
-          if (response.data.code == 1000) {
-            localStorage.setItem("accessToken", response.data.data.token)
-            localStorage.setItem("roleCode", response.data.data.roleCode)
-            localStorage.setItem(
-              "userLoginInfo",
-              response.data.data.userName +
-              "(" +
-              response.data.data.roleName +
-              ")"
-            )
-
-            if (response.data.data.roleCode == "SuperAdmin") {
-              this.$router.push({ path: "/SuperAdmin" })
-              this.loading = false
-            } else if (response.data.data.roleCode == "Administrator") {
-              this.$router.push({ path: "/Administrator" })
-              this.loading = false
-            } else if (response.data.data.roleCode == "Engineer") {
-              this.$router.push({ path: "/Engineer" })
-              this.loading = false
-            } else if (response.data.data.roleCode == "QualityControl") {
-              this.$router.push({ path: "/QualityControl" })
-              this.loading = false
-            } else if (response.data.data.roleCode == "GroupLeader") {
-              this.$router.push({ path: "/GroupLeader" })
-              this.loading = false
-            }
-            this.$router.go(0)
-          } else {
-            this.$message.error(response.data.message)
-            this.menu = response.data.data
-          }
-        })
-      })
-    },
-    // 注册 后 需后台管理员指定角色才能生效
-    handleregister () {
-      let that = this
-      this.$refs.loginForm.validate((valid) => {
-        that.loginForm.loginPwd = md5(this.loginForm.password)
-        register(that.loginForm).then((response) => {
+        that.loginForm.oldPwd = md5(this.loginForm.oldPwd)
+        changePwd(that.loginForm).then((response) => {
           if (response.data.code == 1000) {
             this.$message.success(response.data.message)
           } else {
-            this.menu = response.data.data
             this.$message.error(response.data.message)
           }
         })
       })
     },
+    handleBack() {
+      this.$router.go(-1)
+    },
   },
-};
+}
 </script>
 
 <style lang="scss">
