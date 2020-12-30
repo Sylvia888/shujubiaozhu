@@ -1,0 +1,43 @@
+import request from '../utils/request'
+
+// 组长获取抽检数据
+export function drawlots (data) {
+  return request({
+    url: 'GroupLeaderOperation/drawlots',
+    method: 'post',
+    data
+  })
+}
+// 组长提交数据
+export function submitData (data) {
+  return request({
+    url: 'GroupLeaderOperation/submitData',
+    method: 'post',
+    data
+  })
+}
+
+// 组长快速定位数据
+export function quickLocationData (data) {
+  return request({
+    url: 'GroupLeaderOperation/quickLocationData',
+    method: 'post',
+    data
+  })
+}
+// 组长提交修改数据
+export function submitChangeData (data) {
+  return request({
+    url: 'GroupLeaderOperation/submitChangeData',
+    method: 'post',
+    data
+  })
+}
+// 组长加载所有资源列表
+export function loadResourceList (data) {
+  return request({
+    url: 'GroupLeaderResourceManage/list',
+    method: 'post',
+    data
+  })
+}

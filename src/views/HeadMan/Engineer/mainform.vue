@@ -321,7 +321,7 @@ import {
 } from "@/api/msds";
 
 export default {
-  name: "GroupLeaderEngineermainform",
+  name: "GroupLeaderEngineer",
   components: { pagination },
   data() {
     return {

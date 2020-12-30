@@ -1,38 +1,44 @@
 <template>
   <!-- 工程师任务列表页 -->
   <div class="msds-container view-container">
-    <el-table :data="tableData" style="width: 100%">
+    <el-table :data="tableData" border stripe style="width: 100%">
       <el-table-column prop="id" label="id" width="80"></el-table-column>
-      <el-table-column prop="bCode" label="订单号" width="250">
+      <el-table-column prop="bCode" label="订单号" width="120">
       </el-table-column>
       <el-table-column label="组编号" width="120">
         <template slot-scope="scope">
           {{ scope.row.groupCode + '-N' + scope.row.id }}
         </template>
       </el-table-column>
-      <el-table-column prop="batchTotalCount" label="批次总数量" width="130">
+      <el-table-column prop="batchTotalCount" label="批次总数量" width="120">
       </el-table-column>
       <el-table-column prop="surplusTotalCount" label="未标注" width="100">
       </el-table-column>
-      <el-table-column prop="userNotPassCount" label="未通过" width="120">
+      <el-table-column prop="userNotPassCount" label="未通过" width="100">
       </el-table-column>
-      <el-table-column prop="reCheckTotalCount" label="待复核" width="120">
+      <el-table-column prop="reCheckTotalCount" label="待复核" width="100">
       </el-table-column>
       <!-- 操作选项 -->
-      <el-table-column fixed="right" label="操作" width="220">
+      <el-table-column label="操作" width="350">
         <template slot-scope="scope">
-          <el-button @click="handleClick(scope.row)" type="text" size="mini"
+          <el-button
+            @click="handleClick(scope.row)"
+            type="primary"
+            size="small"
+            round
             >数据标注</el-button
           >
           <el-button
-            type="text"
-            size="mini"
+            round
+            type="info"
+            size="small"
             @click="handleFailedData(scope.row)"
             >未通过数据</el-button
           >
           <el-button
-            type="text"
-            size="mini"
+            round
+            type="warning"
+            size="small"
             @click="handleReCheckData(scope.row)"
             >数据复核</el-button
           >

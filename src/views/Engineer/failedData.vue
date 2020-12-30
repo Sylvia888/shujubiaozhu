@@ -1,7 +1,7 @@
 <template>
   <el-container>
     <el-header>
-      <meta name="referrer" content="no-referrer"/>
+      <meta name="referrer" content="no-referrer" />
       <el-row type="flex" class="header">
         总数量<span>{{ tableData ? tableData.batchTotalCount : 0 }}</span
         >我的标注数量<span>{{ tableData ? tableData.iMarkedCount : 0 }}</span
@@ -11,7 +11,6 @@
     <el-main>
       <el-main>
         <el-row type="flex" justify="space-between">
-          
           <el-col :span="17">
             <div class="demo-image__preview">
               <el-image

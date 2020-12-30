@@ -12,7 +12,7 @@
         </router-link>
       </div>
       <div class="main-btn">
-        <router-link to="/GroupLeader/GroupLeaderEngineermainform" >
+        <router-link to="/GroupLeader/GroupLeaderEngineermainform">
           <el-button type="primary" round>第一批数据</el-button>
         </router-link>
       </div>
@@ -21,18 +21,13 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import pagination from "@/components/Pagination";
-import { fetchMsdsList, fetchChemicalsTypes, addMsdsBaseInfo, updateMsdsBaseInfo, addMsdsEmergencyDisposal, updateMsdsEmergencyDisposal, addFirstAidMeasures, updateFirstAidMeasures, importExcel, delMsds } from "@/api/msds";
+import { mapGetters } from "vuex"
+import pagination from "@/components/Pagination"
+import { fetchMsdsList, fetchChemicalsTypes, addMsdsBaseInfo, updateMsdsBaseInfo, addMsdsEmergencyDisposal, updateMsdsEmergencyDisposal, addFirstAidMeasures, updateFirstAidMeasures, importExcel, delMsds } from "@/api/msds"
 
 export default {
   name: "GroupLeaderEngineermainform",
   components: { pagination }
-  //   mounted: {
-  //     handlepath() {
-  //       this.$router.push({ name: 'ExportList' });
-  //     }
-  //   }
 };
 </script>
 
@@ -64,7 +59,7 @@ export default {
 }
 .main {
   width: 100%;
-   height: 520px;
+  height: 520px;
 }
 .main-btn {
   width: 110px;
