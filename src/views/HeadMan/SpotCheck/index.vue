@@ -97,7 +97,7 @@ import {
 export default {
   name: 'GroupLeaderSpotCheck',
   components: { pagination },
-  data() {
+  data () {
     return {
       loading: false,
       tableData: [],
@@ -108,12 +108,12 @@ export default {
       },
     }
   },
-  created() {
+  created () {
     this.getList()
   },
   methods: {
     //列表加载
-    getList() {
+    getList () {
       const params = {
         per_page: this.params.per_page,
         current_page: this.params.current_page,
@@ -130,22 +130,22 @@ export default {
       })
     },
     //分页
-    handleSelectionChange(val) {
+    handleSelectionChange (val) {
       this.multipleSelection = val
     },
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       this.params.per_page = val
       this.getList()
       console.log(`每页 ${val} 条`)
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       // this.params.total = val;
       this.params.current_page = val
       this.getList()
       console.log(`每页 ${val} 条`)
     },
     // 提交抽签状态
-    tapSubmitDrawComplete(row) {
+    tapSubmitDrawComplete (row) {
       submitDrawComplete({
         batchId: row.id,
         drawState: row.isDrawComplete ? 0 : 1,
@@ -159,7 +159,7 @@ export default {
       })
     },
     // 打回批次
-    tapReturnBatch(row) {
+    tapReturnBatch (row) {
       this.$confirm('确定要打回整个批次吗?操作后不可撤回!', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -175,10 +175,10 @@ export default {
             this.$message.error(response.data.message)
           })
         })
-        .catch(() => {})
+        .catch(() => { })
     },
     // 抽检
-    open(row) {
+    open (row) {
       if (row.ratio) {
         // //页面跳转携带参数 （批次逻辑ID）
         this.$router.push({

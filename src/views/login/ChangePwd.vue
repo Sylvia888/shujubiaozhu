@@ -86,7 +86,7 @@ import { changePwd } from '../../api/user'
 import { MessageBox } from 'element-ui'
 export default {
   name: 'Login',
-  data() {
+  data () {
     const validateuserName = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请输入用户名'))
@@ -133,7 +133,7 @@ export default {
     },
   },
   methods: {
-    showPwd() {
+    showPwd () {
       if (this.passwordType === 'password') {
         this.passwordType = ''
       } else {
@@ -144,7 +144,7 @@ export default {
       })
     },
     // 修改密码
-    handleSubmitChange() {
+    handleSubmitChange () {
       let that = this
       this.$refs.loginForm.validate((valid) => {
         that.loginForm.oldPwd = md5(this.loginForm.oldPwd)
@@ -157,7 +157,7 @@ export default {
         })
       })
     },
-    handleBack() {
+    handleBack () {
       this.$router.go(-1)
     },
   },

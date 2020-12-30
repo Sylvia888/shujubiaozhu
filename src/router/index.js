@@ -104,6 +104,7 @@ const Router = new VueRouter({
       path: "/Engineer",
       name: "Engineer",
       component: Layout,
+      redirect: '/Engineer/EngineerTask',
       hidden: localStorage.getItem("roleCode") != 'Engineer' ? true : false,
       children: [
         {
@@ -156,6 +157,7 @@ const Router = new VueRouter({
       path: "/QualityControl",
       name: "QualityControl",
       component: Layout,
+      redirect: '/QualityControl/Sorter',
       meta: {
         title: "操作列表",
         icon: "el-icon-setting"
@@ -247,7 +249,18 @@ const Router = new VueRouter({
             title: "数据抽检",
             icon: "el-icon-bell"
           }
-        }
+        },
+        {
+          path: "GroupLeaderSpotCheckmainform",
+          name: "GroupLeaderSpotCheckmainform",
+          component: GroupLeaderSpotCheckmainform,
+          hidden: true,
+          meta: {
+            title: "抽检操作面板",
+            icon: "dashboard",
+            keepAlive: true
+          }
+        },
       ]
     },
     {

@@ -1,4 +1,5 @@
 <template>
+<!-- 组长资源管理页面 -->
   <div class="msds-container view-container">
     <el-row>
       <el-col :span="12">

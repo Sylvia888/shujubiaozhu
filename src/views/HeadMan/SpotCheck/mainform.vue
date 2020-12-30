@@ -2,7 +2,7 @@
   <el-container>
     <!-- 头部区域 -->
     <el-header>
-      <meta name="referrer" content="no-referrer"/>
+      <meta name="referrer" content="no-referrer" />
       <el-row type="flex" class="header">
         应抽检<span>{{ tableData && tableData.shouldCheckCount }}</span
         >已抽检<span>{{ tableData && tableData.useCheckCount }}</span
@@ -140,13 +140,13 @@ import pagination from '@/components/Pagination'
 // 组长提交数据
 import { submitData } from '@/api/GroupLeader'
 // 获取组长抽检数据
-import { drawlots, quickLocationData,submitChangeData } from '@/api/GroupLeader'
+import { drawlots, quickLocationData, submitChangeData } from '@/api/GroupLeader'
 import { sponsorLinkageSearch } from '../../../api/engineer'
 
 export default {
   name: 'GroupLeaderSpotCheckmainform',
   components: { pagination },
-  data() {
+  data () {
     return {
       formMess: {
         arId: '',
@@ -167,14 +167,14 @@ export default {
       selectBrandIdx: 0,
     }
   },
-  created() {
+  created () {
     this.batchId = this.$route.query.batchId
     this.ratio = this.$route.query.ratio
 
-    if(this.$route.query.searchArId){
-       this.searchArId = this.$route.query.searchArId
-       this.searchQuickLocationData()
-    }else{
+    if (this.$route.query.searchArId) {
+      this.searchArId = this.$route.query.searchArId
+      this.searchQuickLocationData()
+    } else {
       this.getdata()
     }
 
@@ -182,18 +182,18 @@ export default {
 
 
   },
-  mounted() {
+  mounted () {
     this.$refs.id.$refs.input.focus()
     this.enterKeyup()
   },
-  destroyed() {
+  destroyed () {
     this.enterKeyupDestroyed()
   },
   methods: {
-    callBack() {
-      this.$router.go(-1);
+    callBack () {
+      this.$router.go(-1)
     },
-    getnull() {
+    getnull () {
       this.formMess.sponsorName = null
       this.formMess.bandName = null
       this.formMess.fieldName = null
@@ -203,11 +203,11 @@ export default {
       this.selectBrandIdx = 0
       this.searchArId = null
     },
-    searchOnChange(e) {
+    searchOnChange (e) {
       this.SearchEngineer()
     },
     // 广告主
-    sponsorOnChageValue(e) {
+    sponsorOnChageValue (e) {
       let idx = e.target.value
       this.selectSponsorIdx = idx
       this.formMess.sponsorName = this.selectItems[idx].adName
@@ -219,21 +219,21 @@ export default {
       this.selectBrandIdx = 0
     },
     // 品牌
-    brandOnChageValue(e) {
+    brandOnChageValue (e) {
       let idx = e.target.value
       this.formMess.bandName = this.selectBrandItems[idx].bName
       this.formMess.sponsorName = this.selectItems[this.selectSponsorIdx].adName
       this.selectBrandIdx = idx
     },
     // 产品字段
-    productFieldOnChageValue(e) {
+    productFieldOnChageValue (e) {
       let idx = e.target.value
       this.formMess.fieldName = this.productFieldItems[idx].keyword
       this.formMess.sponsorName = this.selectItems[this.selectSponsorIdx].adName
       this.formMess.bandName = this.selectBrandItems[this.selectBrandIdx].bName
     },
     // 点击搜索
-    async SearchEngineer() {
+    async SearchEngineer () {
       const { data } = await sponsorLinkageSearch({
         searchWords: this.formMess.bandName,
       })
@@ -249,7 +249,7 @@ export default {
       console.log(this.selectItems)
     },
     // 快速定位
-    searchQuickLocationData() {
+    searchQuickLocationData () {
       quickLocationData({ arId: this.searchArId, ratio: this.ratio }).then(
         (response) => {
           if (response.data.code == 1000) {
@@ -266,7 +266,7 @@ export default {
       )
     },
     //加载数据
-    getdata() {
+    getdata () {
       drawlots({ batchId: this.batchId, ratio: this.ratio }).then(
         (response) => {
           if (response.data.code == 1000) {
@@ -283,9 +283,9 @@ export default {
       )
     },
     // 提交
-    onSubmit() {
+    onSubmit () {
       submitChangeData(this.formMess).then((response) => {
-         if (response.data.code == 1000) {
+        if (response.data.code == 1000) {
           this.getdata()
         } else {
           this.$message.error(response.data.message)
@@ -293,7 +293,7 @@ export default {
       })
     },
     // 不通过
-    onUnconfirm() {
+    onUnconfirm () {
       this.formMess.isPass = 1
       submitData(this.formMess).then((response) => {
         if (response.data.code == 1000) {
@@ -304,7 +304,7 @@ export default {
       })
     },
     // 通过
-    onSave() {
+    onSave () {
       this.formMess.isPass = 2
       submitData(this.formMess).then((response) => {
         if (response.data.code == 1000) {
@@ -315,20 +315,20 @@ export default {
       })
     },
     // 绑定enter事件
-    enterKeyup() {
+    enterKeyup () {
       document.addEventListener('keyup', this.enterKey)
     },
-    enterKeyupDestroyed() {
+    enterKeyupDestroyed () {
       document.removeEventListener('keyup', this.enterKey)
     },
-    enterKey(event) {
+    enterKey (event) {
       const componentName = this.$options.name
       if (componentName == 'GroupLeaderSpotCheckmainform') {
         const code = event.keyCode
           ? event.keyCode
           : event.which
-          ? event.which
-          : event.charCode
+            ? event.which
+            : event.charCode
         if (code == 13) {
           this.onSubmit()
         }

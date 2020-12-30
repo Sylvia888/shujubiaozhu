@@ -4,13 +4,13 @@
       :data="tableData"
       :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
       border
+      stripe
       style="width: 100%; text-align: center"
     >
-      <el-table-column fixed prop="id" label="id" width="150">
+      <el-table-column fixed prop="id" label="id" width="80"> </el-table-column>
+      <el-table-column fixed prop="bCode" label="订单号" width="180">
       </el-table-column>
-      <el-table-column fixed prop="bCode" label="订单号" width="210">
-      </el-table-column>
-      <el-table-column fixed label="组编号" width="120">
+      <el-table-column fixed label="组编号" width="100">
         <template slot-scope="scope">
           {{ scope.row.groupCode + '-N' + scope.row.id }}
         </template>
@@ -19,29 +19,28 @@
         fixed
         prop="batchTotalCount"
         label="批次总数量"
-        width="150"
+        width="100"
       >
       </el-table-column>
-
       <el-table-column
         fixed
         prop="batchHasDoneTotalCount"
         label="总做数量"
-        width="150"
+        width="90"
       >
       </el-table-column>
       <el-table-column
         fixed
         prop="batchCompleteTotalCount"
         label="已完成数量"
-        width="150"
+        width="90"
       >
       </el-table-column>
       <el-table-column
         fixed
         prop="batchCompleteTotalCount"
         label="抽检状态"
-        width="200"
+        width="80"
       >
         <template slot-scope="scope">
           {{ scope.row.isDrawComplete ? '已完成' : '未完成' }}
@@ -51,7 +50,7 @@
         fixed
         prop="batchCompleteTotalCount"
         label="交付状态"
-        width="90"
+        width="100"
       >
         <template slot-scope="scope">
           {{ scope.row.isDelivery >= 1 ? '已交付' : '未交付' }}
@@ -61,13 +60,13 @@
         fixed
         prop="batchCompleteTotalCount"
         label="交付时间"
-        width="200"
+        width="150"
       >
         <template slot-scope="scope">
           {{ scope.row.deliveryTimeText ? scope.row.deliveryTimeText : '' }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200">
+      <el-table-column label="操作" width="180" fixed>
         <template slot-scope="scope">
           <el-button
             type="primary"
@@ -118,7 +117,7 @@ import { batchExportData, deliveryBatchData } from '../../api/admintask'
 export default {
   name: 'Export',
   components: { pagination },
-  data() {
+  data () {
     return {
       tableData: [],
       exportDdata: [],
@@ -137,12 +136,12 @@ export default {
       },
     }
   },
-  created() {
+  created () {
     this.getList()
   },
   methods: {
     // 导出为sql文件方法
-    fakeClick(obj) {
+    fakeClick (obj) {
       var ev = document.createEvent('MouseEvents')
       ev.initMouseEvent(
         'click',
@@ -163,7 +162,7 @@ export default {
       )
       obj.dispatchEvent(ev)
     },
-    exportRaw(name, data) {
+    exportRaw (name, data) {
       var urlObject = window.URL || window.webkitURL || window
       var export_blob = new Blob([data])
       var save_link = document.createElementNS(
@@ -175,18 +174,18 @@ export default {
       this.fakeClick(save_link)
     },
     //分页
-    handleSelectionChange(val) {
+    handleSelectionChange (val) {
       this.multipleSelection = val
     },
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       this.params.per_page = val
       this.getList()
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       this.params.current_page = val
       this.getList()
     },
-    getList() {
+    getList () {
       const params = {
         per_page: this.params.per_page,
         current_page: this.params.current_page,
@@ -202,7 +201,7 @@ export default {
       })
     },
     // 交付数据
-    handleDeliveryClick(row) {
+    handleDeliveryClick (row) {
       if (row.isDelivery >= 1) {
         this.$message.error('该数据已交付，不能重复交付数据')
         return
@@ -229,7 +228,7 @@ export default {
       })
     },
     //导出
-    handleClick(row) {
+    handleClick (row) {
       this.$set(row, 'remindLoading', true)
       this.exportParams.batchId = row.id
       this.requestBatchData(() => {
@@ -238,14 +237,14 @@ export default {
       }, this.exportParams)
     },
     // 初始化导出数据
-    setNullExport() {
+    setNullExport () {
       this.exportParams.last_page = 0
       this.exportParams.current_page = 0
       this.exportParams.total = 0
       this.exportDdata = []
     },
     // 请求数据
-    requestBatchData(callBack, exportParams) {
+    requestBatchData (callBack, exportParams) {
       batchExportData(exportParams).then((response) => {
         let responData = response.data
         this.exportParams.per_page = responData.data.per_page
@@ -268,7 +267,7 @@ export default {
       })
     },
     // 导出excel 表格
-    exportWithData(row, arrayData) {
+    exportWithData (row, arrayData) {
       if (!row) return null
       if (!arrayData) return null
       if (arrayData && arrayData.length <= 0) return
@@ -363,7 +362,7 @@ export default {
         this.setNullExport()
       })
     },
-    formatJson(filterVal, exportDdata) {
+    formatJson (filterVal, exportDdata) {
       return exportDdata.map((v) =>
         filterVal.map((j) => {
           if (j === 'timestamp') {
