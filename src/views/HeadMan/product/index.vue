@@ -195,6 +195,7 @@ export default {
         this.idItems.push(item.id)
       })
     },
+    // 关闭弹框
     clearDialog () {
       this.currentRow = null
       this.dialogTableVisible = false
