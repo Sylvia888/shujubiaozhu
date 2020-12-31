@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <!-- 登陆表单区域 -->
+    <!-- 登陆注册页面-->
     <el-form
       ref="loginForm"
       :model="loginForm"
@@ -78,7 +78,7 @@
 </template>
 <script>
 import md5 from "js-md5"
-import { login, register,changePwd } from "../../api/user"
+import { login, register, changePwd } from "../../api/user"
 import { MessageBox } from "element-ui"
 export default {
   name: "Login",

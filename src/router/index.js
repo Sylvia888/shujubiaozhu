@@ -5,6 +5,7 @@ import Layout from "@/layout"
 import Login from '../views/login/index.vue'
 import ChangePwd from '../views/login/ChangePwd.vue'
 
+
 import SuperAdmin from '../views/sadmin/index.vue'
 import ImportTask from '../views/Task/index.vue'
 import ImportExport from '../views/Task/export'
@@ -29,8 +30,6 @@ import HeadmanProduct from '@/views/HeadMan/product'
 import GroupLeaderResource from '../views/HeadMan/resource/index'
 import SorterResource from '@/views/Sorter/Resources'
 
-
-
 Vue.use(VueRouter)
 
 const Router = new VueRouter({
@@ -49,6 +48,7 @@ const Router = new VueRouter({
       path: '/changepwd',
       component: ChangePwd,
     },
+    // 超级管理员
     {
       path: "/SuperAdmin",
       name: "SuperAdmin",
@@ -66,6 +66,7 @@ const Router = new VueRouter({
         },
       ]
     },
+    // 管理员
     {
       path: "/Administrator",
       name: "Administrator",
@@ -96,7 +97,7 @@ const Router = new VueRouter({
             icon: "dashboard",
             keepAlive: true
           }
-        },
+        }
       ]
     },
     // 工程师
@@ -316,7 +317,7 @@ const Router = new VueRouter({
           }
         },
       ]
-    },
+    }
   ]
 })
 // 挂载路由导航守卫beforeEach，如果用户没有登陆，需要重定到登陆页面，控制访问权限

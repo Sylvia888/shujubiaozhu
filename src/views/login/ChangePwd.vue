@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <!-- 登陆表单区域 -->
+    <!-- 修改密码页面 -->
     <el-form
       ref="loginForm"
       :model="loginForm"

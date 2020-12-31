@@ -1,4 +1,5 @@
 <template>
+  <!--   超级管理员首页 -->
   <div class="msds-container view-container">
     <div style="margin-bottom: 10px">
       <el-button
@@ -49,7 +50,7 @@
       </el-table-column>
       <el-table-column prop="userName" label="用户名" width="120">
       </el-table-column>
-      <el-table-column prop="mobile" label="手机" width="120">
+      <el-table-column prop="mobile" label="手机号" width="120">
       </el-table-column>
       <el-table-column prop="roleId" label="角色ID" width="120">
       </el-table-column>
@@ -59,26 +60,26 @@
       <el-table-column prop="roleCode" label="角色编号" width="120">
       </el-table-column>
     </el-table>
-    <el-pagination 
-      background 
-      layout="sizes,prev, pager, next" 
+    <el-pagination
+      background
+      layout="sizes,prev, pager, next"
       :total="params.total"
-       @size-change="handleSizeChange"
+      @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page.sync="params.current_page"
       :page-sizes="[10, 20, 50, 100]"
       :page-size="10"
-      >
+    >
     </el-pagination>
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import pagination from "@/components/Pagination";
-import { specifyRole } from "../../api/sadmin";
-import { roleList } from "../../api/sadmin";
-import { userList } from "../../api/sadmin";
+import { mapGetters } from "vuex"
+import pagination from "@/components/Pagination"
+import { specifyRole } from "../../api/sadmin"
+import { roleList } from "../../api/sadmin"
+import { userList } from "../../api/sadmin"
 import {
   fetchMsdsList,
   fetchChemicalsTypes,
@@ -90,12 +91,12 @@ import {
   updateFirstAidMeasures,
   importExcel,
   delMsds,
-} from "@/api/msds";
+} from "@/api/msds"
 
 export default {
   name: "Sadmin",
   components: { pagination },
-  data() {
+  data () {
     return {
       dialogTableVisible: false,
       dialogFormVisible: false,
@@ -117,80 +118,80 @@ export default {
       userList: [],
       ulist: [],
       Aarr: [],
-    };
+    }
   },
-  created() {
-    this.getList();
-    this.getselectList();
+  created () {
+    this.getList()
+    this.getselectList()
   },
 
   methods: {
     //复选框选中所有id
-    changeFun(val) {
-      this.userList = val;
-      let arr = this.userList.map((item) => item.id); //取list中所有id
-      this.Aarr = arr;
+    changeFun (val) {
+      this.userList = val
+      let arr = this.userList.map((item) => item.id) //取list中所有id
+      this.Aarr = arr
 
-      let arr1 = this.userList.map((item) => item.userName); //取list中所有username
-      this.formMess.userIdItem = arr1;
+      let arr1 = this.userList.map((item) => item.userName) //取list中所有username
+      this.formMess.userIdItem = arr1
     },
 
     //修改用户角色接口
-    getupdaterole() {
-      let that = this;
+    getupdaterole () {
+      let that = this
       const params = {
         // ...this.formMess,
         userIdItem: JSON.stringify(this.formMess.userIdItem),
         userIdItems: JSON.stringify(this.Aarr), //shuzi ma
         roleId: this.formMess.roleId,
-      };
+      }
       specifyRole(params).then((response) => {
         if (response.data.code == 1000) {
-          this.$message.success(response.data.message);
+          this.$message.success(response.data.message)
         } else {
-          this.$message.error(response.data.message);
+          this.$message.error(response.data.message)
         }
-        this.getList();
-        this.dialogFormVisible = false;
-      });
+        this.getList()
+        this.dialogFormVisible = false
+      })
     },
 
     //下拉框加载
-    getselectList() {
-      let that = this;
+    getselectList () {
+      let that = this
       roleList(that.params).then((response) => {
-        console.log(response);
-        this.selectListData = response.data.data.data;
+        console.log(response)
+        this.selectListData = response.data.data.data
 
-        console.log(this.selectListData);
-        this.params.totle = response.data.data.total;
-      });
+        console.log(this.selectListData)
+        this.params.totle = response.data.data.total
+      })
     },
     //分页
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
+    handleSelectionChange (val) {
+      this.multipleSelection = val
     },
-    handleSizeChange(val) {
-      this.params.per_page = val;
-      this.getList();
-      console.log(`每页 ${val} 条`);
+    handleSizeChange (val) {
+      this.params.per_page = val
+      this.getList()
+      console.log(`每页 ${val} 条`)
     },
-    handleCurrentChange(val) {
-      this.params.current_page = val;
-      this.getList();
+    handleCurrentChange (val) {
+      this.params.current_page = val
+      this.getList()
     },
 
     //列表加载
-    getList() {
-      let that = this;
+    getList () {
+      let that = this
       userList(that.params).then((response) => {
-       
-        that.tableData = response.data.data.data;
-        that.params.total = response.data.data.total; //分页
-        that.params.per_page = response.data.data.per_page;
-        that.params.current_page = response.data.data.current_page;
 
-      });
+        that.tableData = response.data.data.data
+        that.params.total = response.data.data.total //分页
+        that.params.per_page = response.data.data.per_page
+        that.params.current_page = response.data.data.current_page
+
+      })
     },
   },
 };

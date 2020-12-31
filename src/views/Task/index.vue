@@ -1,9 +1,10 @@
 <template>
+  <!-- 管理员导入数据 -->
   <div class="msds-container view-container">
     <div class="main">
-    <!-- 表单区域 -->
-      <el-form v-model="ruleForm" ref="ruleForm" >
-         <el-form-item label="订单号">
+      <!-- 表单区域 -->
+      <el-form v-model="ruleForm" ref="ruleForm">
+        <el-form-item label="订单号：">
           <el-autocomplete
             class="inline-input"
             v-model="ruleForm.bCode"
@@ -12,11 +13,11 @@
             :trigger-on-focus="true"
             @select="handleSelectSponsorName"
             ref="sponsorNameRef"
-            style="width: 30%;"
-            >
+            style="width: 30%"
+          >
           </el-autocomplete>
         </el-form-item>
-        <el-form-item label="组编号">
+        <el-form-item label="组编号：">
           <el-autocomplete
             class="inline-input"
             v-model="ruleForm.groupCode"
@@ -25,8 +26,8 @@
             :trigger-on-focus="true"
             @select="handleSelecttGroupCode"
             ref="groupCodeRef"
-            style="width: 30%;"
-            >
+            style="width: 30%"
+          >
           </el-autocomplete>
         </el-form-item>
         <!-- 文件上传 -->
@@ -52,8 +53,8 @@
           </el-upload>
         </el-form-item>
         <el-form-item>
-        <!-- 提交按钮 -->
-            <el-button type="primary" @click="submitForm">提交</el-button>
+          <!-- 提交按钮 -->
+          <el-button type="primary" @click="submitForm">提交</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -61,10 +62,10 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { mapGetters } from "vuex";
-import pagination from "@/components/Pagination";
-import { getUrl } from "../../api/sorter";
+import axios from 'axios'
+import { mapGetters } from "vuex"
+import pagination from "@/components/Pagination"
+import { getUrl } from "../../api/sorter"
 import {
   fetchMsdsList,
   fetchChemicalsTypes,
@@ -76,13 +77,13 @@ import {
   updateFirstAidMeasures,
   importExcel,
   delMsds,
-} from "@/api/msds";
+} from "@/api/msds"
 // 批次号
-import { getSelectBatchNo,getSelectGroupNo } from "@/api/admintask" ;
+import { getSelectBatchNo, getSelectGroupNo } from "@/api/admintask"
 export default {
   name: "Task",
   components: { pagination },
-  data() {
+  data () {
     return {
       //radio: "0",
       fileList: [],
@@ -97,103 +98,103 @@ export default {
       },
       bool: true,
       postMethod: "/AdministratorOperation/batchImportData",
-      url:""
-    };
+      url: ""
+    }
   },
-  created() {
-    this.token = localStorage.getItem("accessToken");
+  created () {
+    this.token = localStorage.getItem("accessToken")
   },
   computed: {
-    uploadHeaders: function() {
+    uploadHeaders: function () {
       return {
         authorization: localStorage.getItem("accessToken")
       }
     },
-    apiurl: function() {
+    apiurl: function () {
       return this.$http.defaults.baseURL
     }
   },
   methods: {
-    getnull() {
-      this.ruleForm.bCode = null;
+    getnull () {
+      this.ruleForm.bCode = null
     },
     //加载数据
-    getdata() {
-      this.getnull();
+    getdata () {
+      this.getnull()
       const prames = {
         batchId: this.batchId
-      };
+      }
       labelLoadData(prames).then((response) => {
         if (response.data.code == 1000) {
-          this.tableData = response.data.data;
-          this.ruleForm.arId = this.tableData.id;
+          this.tableData = response.data.data
+          this.ruleForm.arId = this.tableData.id
           console.log(this.tableData)
         } else {
           // this.menu = response.data.data;
-          this.$message.error(response.data.message);
+          this.$message.error(response.data.message)
         }
-        this.$refs.sponsorNameRef.$refs.input.focus();
-      });
+        this.$refs.sponsorNameRef.$refs.input.focus()
+      })
     },
-    handleRemove(file, fileList) {},
-    handlePreview(file) {},
+    handleRemove (file, fileList) { },
+    handlePreview (file) { },
     // 失败方法
-    handleError(err, file) {
+    handleError (err, file) {
       this.$message.error('上传失败')
     },
     // 成功方法
-    handleSuccess(res, file) {
-      if(res.code == 1000){
+    handleSuccess (res, file) {
+      if (res.code == 1000) {
         this.$message.success(res.message)
         // 成功后清空已上传的文件列表
         this.$refs.upload.clearFiles()
         return
       }
       this.$message.error(res.message)
-       // 失败后清空已上传的文件列表
+      // 失败后清空已上传的文件列表
       this.$refs.upload.clearFiles()
     },
-    handleExceed(files, fileList) { },
-    async handleChange() {},
+    handleExceed (files, fileList) { },
+    async handleChange () { },
     // 批次号(订单号)提醒
-    handleSelectSponsorName() {},
-    querygetSelectBatchNoSuggestions(queryString, cb) {
+    handleSelectSponsorName () { },
+    querygetSelectBatchNoSuggestions (queryString, cb) {
       getSelectBatchNo({ searchWords: queryString }).then((res) => {
         // console.log(res)
         if (res.data.code == 1000) {
-          let retData = res.data.data.data;
+          let retData = res.data.data.data
           // console.log(retData);
-          let restaurants = [];
+          let restaurants = []
           retData.forEach((element) => {
-            restaurants.push({ value: element.bCode });
-          });
+            restaurants.push({ value: element.bCode })
+          })
           let results = queryString
             ? restaurants.filter(this.createFilter(queryString))
             : restaurants
-          cb(results);
+          cb(results)
         }
-      });
+      })
     },
-     // 组编号提醒
-    handleSelecttGroupCode() {},
-    querygetSelectGroupNoSuggestions(queryString, cb) {
+    // 组编号提醒
+    handleSelecttGroupCode () { },
+    querygetSelectGroupNoSuggestions (queryString, cb) {
       getSelectGroupNo({ searchWords: queryString }).then((res) => {
         // console.log(res)
         if (res.data.code == 1000) {
-          let retData = res.data.data.data;
+          let retData = res.data.data.data
           // console.log(retData);
-          let restaurants = [];
+          let restaurants = []
           retData.forEach((element) => {
-            restaurants.push({ value: element.groupCode });
-          });
+            restaurants.push({ value: element.groupCode })
+          })
           let results = queryString
             ? restaurants.filter(this.createFilter(queryString))
             : restaurants
-          cb(results);
+          cb(results)
         }
-      });
+      })
     },
-    createFilter(queryString) {
+    createFilter (queryString) {
       return (restaurant) => {
         return (
           restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
@@ -202,9 +203,9 @@ export default {
       }
     },
     // 提交
-    submitForm(ee) {
-        this.$refs.upload.submit()
-        return false
+    submitForm (ee) {
+      this.$refs.upload.submit()
+      return false
     },
   }
 }
@@ -245,6 +246,6 @@ export default {
   margin: 0 auto;
 }
 .inline-input {
-  width:300px;
+  width: 300px;
 }
 </style>
